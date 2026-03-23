@@ -1,0 +1,782 @@
+{
+  "users": [
+    {
+      "id": "demo-analyst",
+      "email": "analyst@example.com",
+      "name": "Sarah Chen",
+      "role": "security_analyst",
+      "createdAt": "2026-03-22T17:34:47.603Z",
+      "password": "demo123"
+    },
+    {
+      "id": "demo-dev",
+      "email": "dev@example.com",
+      "name": "Alex Kumar",
+      "role": "developer",
+      "createdAt": "2026-03-22T17:34:47.603Z",
+      "password": "demo123"
+    },
+    {
+      "id": "1774200915065-b2mr914b5",
+      "email": "vanshdhumal5@gmail.com",
+      "name": "VANSH Dhumal",
+      "password": "VANSH-1-ITAL",
+      "role": "security_analyst",
+      "createdAt": "2026-03-22T17:35:15.066Z"
+    }
+  ],
+  "apks": [
+    {
+      "id": "1774200967952-u2mk7wuxr",
+      "userId": "1774200915065-b2mr914b5",
+      "fileName": "app-release.apk",
+      "fileSize": 1030655,
+      "packageName": "",
+      "versionName": "",
+      "versionCode": 0,
+      "minSdkVersion": 0,
+      "targetSdkVersion": 0,
+      "uploadedAt": "2026-03-22T17:36:07.962Z",
+      "status": "completed"
+    },
+    {
+      "id": "1774200996329-y81ivhlml",
+      "userId": "1774200915065-b2mr914b5",
+      "fileName": "app-release.apk",
+      "fileSize": 1030655,
+      "packageName": "",
+      "versionName": "",
+      "versionCode": 0,
+      "minSdkVersion": 0,
+      "targetSdkVersion": 0,
+      "uploadedAt": "2026-03-22T17:36:36.339Z",
+      "status": "completed"
+    }
+  ],
+  "reports": [
+    {
+      "id": "1774200975366-vc55gg0hp",
+      "apkId": "1774200967952-u2mk7wuxr",
+      "userId": "1774200915065-b2mr914b5",
+      "createdAt": "2026-03-22T17:36:15.376Z",
+      "completedAt": "2026-03-22T17:36:15.376Z",
+      "status": "completed",
+      "summary": {
+        "totalVulnerabilities": 5,
+        "critical": 1,
+        "high": 0,
+        "medium": 3,
+        "low": 1,
+        "riskScore": 52
+      },
+      "manifest": {
+        "packageName": "com.finance.banking.apprelea",
+        "versionName": "1.5.65",
+        "versionCode": 665,
+        "minSdkVersion": 21,
+        "targetSdkVersion": 31,
+        "permissions": [
+          "android.permission.RECORD_AUDIO",
+          "android.permission.SYSTEM_ALERT_WINDOW",
+          "android.permission.WRITE_CONTACTS",
+          "android.permission.READ_EXTERNAL_STORAGE",
+          "android.permission.BIND_DEVICE_ADMIN",
+          "android.permission.CAMERA",
+          "android.permission.RECEIVE_BOOT_COMPLETED",
+          "android.permission.READ_CONTACTS",
+          "android.permission.READ_PHONE_STATE",
+          "android.permission.BIND_ACCESSIBILITY_SERVICE"
+        ],
+        "activities": [
+          "com.finance.banking.MainActivity",
+          "com.finance.banking.LoginActivity",
+          "com.finance.banking.SettingsActivity"
+        ],
+        "services": [
+          "com.finance.banking.SyncService"
+        ],
+        "receivers": [
+          "com.finance.banking.BootReceiver"
+        ],
+        "providers": [],
+        "exported": {
+          "activities": [],
+          "services": [],
+          "receivers": [
+            "com.finance.banking.BootReceiver"
+          ],
+          "providers": []
+        },
+        "debuggable": false,
+        "allowBackup": true
+      },
+      "permissions": [
+        {
+          "permission": "android.permission.RECORD_AUDIO",
+          "isRisky": true,
+          "riskLevel": "high",
+          "description": "Microphone access could enable audio surveillance",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.SYSTEM_ALERT_WINDOW",
+          "isRisky": true,
+          "riskLevel": "high",
+          "description": "Can draw over other apps, enables clickjacking attacks",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.WRITE_CONTACTS",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Can modify contact data, risk of data corruption or injection",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.READ_EXTERNAL_STORAGE",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Can read files from external storage including photos and documents",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.BIND_DEVICE_ADMIN",
+          "isRisky": true,
+          "riskLevel": "critical",
+          "description": "Device administrator privileges, can lock/wipe device",
+          "protectionLevel": "signature"
+        },
+        {
+          "permission": "android.permission.CAMERA",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Camera access could enable unauthorized photo/video capture",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.RECEIVE_BOOT_COMPLETED",
+          "isRisky": true,
+          "riskLevel": "low",
+          "description": "App starts on device boot, persistence mechanism",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.READ_CONTACTS",
+          "isRisky": true,
+          "riskLevel": "high",
+          "description": "Access to all contact information, privacy risk for user and contacts",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.READ_PHONE_STATE",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Access to phone identity (IMEI, phone number)",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.BIND_ACCESSIBILITY_SERVICE",
+          "isRisky": true,
+          "riskLevel": "critical",
+          "description": "Full screen access and input simulation, complete device control possible",
+          "protectionLevel": "signature"
+        }
+      ],
+      "vulnerabilities": [
+        {
+          "id": "1774200974479-toufk4oub",
+          "type": "Data Security",
+          "severity": "medium",
+          "title": "Application Data Backup Enabled",
+          "description": "The android:allowBackup flag is true, allowing users to backup application data via ADB. Sensitive data could be extracted from device backups.",
+          "location": "AndroidManifest.xml - application tag",
+          "recommendation": "Set android:allowBackup=\"false\" or implement a custom BackupAgent that excludes sensitive data.",
+          "cweId": "CWE-530"
+        },
+        {
+          "id": "1774200974566-hpfm586rl",
+          "type": "Component Security",
+          "severity": "medium",
+          "title": "Exported Broadcast Receiver",
+          "description": "Receiver \"com.finance.banking.BootReceiver\" is exported and can receive broadcasts from any application. Verify that this is intentional and input is properly validated.",
+          "location": "AndroidManifest.xml - com.finance.banking.BootReceiver",
+          "recommendation": "Consider using LocalBroadcastManager for internal broadcasts or add permission protection.",
+          "cweId": "CWE-925"
+        },
+        {
+          "id": "1774200974652-wfaplsb6h",
+          "type": "Compatibility Risk",
+          "severity": "low",
+          "title": "Low Minimum SDK Version",
+          "description": "The app targets SDK 21, which lacks security features like runtime permissions and network security configuration defaults.",
+          "location": "AndroidManifest.xml - uses-sdk",
+          "recommendation": "Consider raising minSdkVersion to at least 23 (Android 6.0) for better security defaults.",
+          "cweId": "CWE-693"
+        },
+        {
+          "id": "1774200974740-a0g0us8ni",
+          "type": "Secrets Management",
+          "severity": "critical",
+          "title": "Hardcoded API Key Detected",
+          "description": "A potential API key or secret was found hardcoded in the application code. This could be extracted through reverse engineering.",
+          "location": "com.finance.banking.apprelea.BuildConfig.java",
+          "recommendation": "Move secrets to a secure backend or use Android Keystore for sensitive credentials.",
+          "cweId": "CWE-798"
+        },
+        {
+          "id": "1774200974823-nr55nk8lp",
+          "type": "Network Security",
+          "severity": "medium",
+          "title": "Cleartext HTTP Traffic Allowed",
+          "description": "The application allows cleartext HTTP traffic. Network communications could be intercepted by attackers on the same network.",
+          "location": "network_security_config.xml",
+          "recommendation": "Use HTTPS for all network communications. Add a network security config that blocks cleartext traffic.",
+          "cweId": "CWE-319"
+        }
+      ]
+    },
+    {
+      "id": "1774200975405-zj1lguik8",
+      "apkId": "1774200967952-u2mk7wuxr",
+      "userId": "1774200915065-b2mr914b5",
+      "createdAt": "2026-03-22T17:36:15.416Z",
+      "completedAt": "2026-03-22T17:36:15.416Z",
+      "status": "completed",
+      "summary": {
+        "totalVulnerabilities": 5,
+        "critical": 1,
+        "high": 0,
+        "medium": 3,
+        "low": 1,
+        "riskScore": 52
+      },
+      "manifest": {
+        "packageName": "com.finance.banking.apprelea",
+        "versionName": "1.5.65",
+        "versionCode": 665,
+        "minSdkVersion": 21,
+        "targetSdkVersion": 31,
+        "permissions": [
+          "android.permission.RECORD_AUDIO",
+          "android.permission.SYSTEM_ALERT_WINDOW",
+          "android.permission.WRITE_CONTACTS",
+          "android.permission.READ_EXTERNAL_STORAGE",
+          "android.permission.BIND_DEVICE_ADMIN",
+          "android.permission.CAMERA",
+          "android.permission.RECEIVE_BOOT_COMPLETED",
+          "android.permission.READ_CONTACTS",
+          "android.permission.READ_PHONE_STATE",
+          "android.permission.BIND_ACCESSIBILITY_SERVICE"
+        ],
+        "activities": [
+          "com.finance.banking.MainActivity",
+          "com.finance.banking.LoginActivity",
+          "com.finance.banking.SettingsActivity"
+        ],
+        "services": [
+          "com.finance.banking.SyncService"
+        ],
+        "receivers": [
+          "com.finance.banking.BootReceiver"
+        ],
+        "providers": [],
+        "exported": {
+          "activities": [],
+          "services": [],
+          "receivers": [
+            "com.finance.banking.BootReceiver"
+          ],
+          "providers": []
+        },
+        "debuggable": false,
+        "allowBackup": true
+      },
+      "permissions": [
+        {
+          "permission": "android.permission.RECORD_AUDIO",
+          "isRisky": true,
+          "riskLevel": "high",
+          "description": "Microphone access could enable audio surveillance",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.SYSTEM_ALERT_WINDOW",
+          "isRisky": true,
+          "riskLevel": "high",
+          "description": "Can draw over other apps, enables clickjacking attacks",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.WRITE_CONTACTS",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Can modify contact data, risk of data corruption or injection",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.READ_EXTERNAL_STORAGE",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Can read files from external storage including photos and documents",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.BIND_DEVICE_ADMIN",
+          "isRisky": true,
+          "riskLevel": "critical",
+          "description": "Device administrator privileges, can lock/wipe device",
+          "protectionLevel": "signature"
+        },
+        {
+          "permission": "android.permission.CAMERA",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Camera access could enable unauthorized photo/video capture",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.RECEIVE_BOOT_COMPLETED",
+          "isRisky": true,
+          "riskLevel": "low",
+          "description": "App starts on device boot, persistence mechanism",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.READ_CONTACTS",
+          "isRisky": true,
+          "riskLevel": "high",
+          "description": "Access to all contact information, privacy risk for user and contacts",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.READ_PHONE_STATE",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Access to phone identity (IMEI, phone number)",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.BIND_ACCESSIBILITY_SERVICE",
+          "isRisky": true,
+          "riskLevel": "critical",
+          "description": "Full screen access and input simulation, complete device control possible",
+          "protectionLevel": "signature"
+        }
+      ],
+      "vulnerabilities": [
+        {
+          "id": "1774200974527-d6ggw526b",
+          "type": "Data Security",
+          "severity": "medium",
+          "title": "Application Data Backup Enabled",
+          "description": "The android:allowBackup flag is true, allowing users to backup application data via ADB. Sensitive data could be extracted from device backups.",
+          "location": "AndroidManifest.xml - application tag",
+          "recommendation": "Set android:allowBackup=\"false\" or implement a custom BackupAgent that excludes sensitive data.",
+          "cweId": "CWE-530"
+        },
+        {
+          "id": "1774200974607-712gxj37v",
+          "type": "Component Security",
+          "severity": "medium",
+          "title": "Exported Broadcast Receiver",
+          "description": "Receiver \"com.finance.banking.BootReceiver\" is exported and can receive broadcasts from any application. Verify that this is intentional and input is properly validated.",
+          "location": "AndroidManifest.xml - com.finance.banking.BootReceiver",
+          "recommendation": "Consider using LocalBroadcastManager for internal broadcasts or add permission protection.",
+          "cweId": "CWE-925"
+        },
+        {
+          "id": "1774200974699-a99iosxk7",
+          "type": "Compatibility Risk",
+          "severity": "low",
+          "title": "Low Minimum SDK Version",
+          "description": "The app targets SDK 21, which lacks security features like runtime permissions and network security configuration defaults.",
+          "location": "AndroidManifest.xml - uses-sdk",
+          "recommendation": "Consider raising minSdkVersion to at least 23 (Android 6.0) for better security defaults.",
+          "cweId": "CWE-693"
+        },
+        {
+          "id": "1774200974777-q5g7hizg5",
+          "type": "Secrets Management",
+          "severity": "critical",
+          "title": "Hardcoded API Key Detected",
+          "description": "A potential API key or secret was found hardcoded in the application code. This could be extracted through reverse engineering.",
+          "location": "com.finance.banking.apprelea.BuildConfig.java",
+          "recommendation": "Move secrets to a secure backend or use Android Keystore for sensitive credentials.",
+          "cweId": "CWE-798"
+        },
+        {
+          "id": "1774200974860-do3rt7a68",
+          "type": "Network Security",
+          "severity": "medium",
+          "title": "Cleartext HTTP Traffic Allowed",
+          "description": "The application allows cleartext HTTP traffic. Network communications could be intercepted by attackers on the same network.",
+          "location": "network_security_config.xml",
+          "recommendation": "Use HTTPS for all network communications. Add a network security config that blocks cleartext traffic.",
+          "cweId": "CWE-319"
+        }
+      ]
+    },
+    {
+      "id": "1774201000831-fd71tc5nu",
+      "apkId": "1774200996329-y81ivhlml",
+      "userId": "1774200915065-b2mr914b5",
+      "createdAt": "2026-03-22T17:36:40.840Z",
+      "completedAt": "2026-03-22T17:36:40.840Z",
+      "status": "completed",
+      "summary": {
+        "totalVulnerabilities": 5,
+        "critical": 1,
+        "high": 0,
+        "medium": 3,
+        "low": 1,
+        "riskScore": 52
+      },
+      "manifest": {
+        "packageName": "com.finance.banking.apprelea",
+        "versionName": "1.5.65",
+        "versionCode": 665,
+        "minSdkVersion": 21,
+        "targetSdkVersion": 31,
+        "permissions": [
+          "android.permission.RECORD_AUDIO",
+          "android.permission.SYSTEM_ALERT_WINDOW",
+          "android.permission.WRITE_CONTACTS",
+          "android.permission.READ_EXTERNAL_STORAGE",
+          "android.permission.BIND_DEVICE_ADMIN",
+          "android.permission.CAMERA",
+          "android.permission.RECEIVE_BOOT_COMPLETED",
+          "android.permission.READ_CONTACTS",
+          "android.permission.READ_PHONE_STATE",
+          "android.permission.BIND_ACCESSIBILITY_SERVICE"
+        ],
+        "activities": [
+          "com.finance.banking.MainActivity",
+          "com.finance.banking.LoginActivity",
+          "com.finance.banking.SettingsActivity"
+        ],
+        "services": [
+          "com.finance.banking.SyncService"
+        ],
+        "receivers": [
+          "com.finance.banking.BootReceiver"
+        ],
+        "providers": [],
+        "exported": {
+          "activities": [],
+          "services": [],
+          "receivers": [
+            "com.finance.banking.BootReceiver"
+          ],
+          "providers": []
+        },
+        "debuggable": false,
+        "allowBackup": true
+      },
+      "permissions": [
+        {
+          "permission": "android.permission.RECORD_AUDIO",
+          "isRisky": true,
+          "riskLevel": "high",
+          "description": "Microphone access could enable audio surveillance",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.SYSTEM_ALERT_WINDOW",
+          "isRisky": true,
+          "riskLevel": "high",
+          "description": "Can draw over other apps, enables clickjacking attacks",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.WRITE_CONTACTS",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Can modify contact data, risk of data corruption or injection",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.READ_EXTERNAL_STORAGE",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Can read files from external storage including photos and documents",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.BIND_DEVICE_ADMIN",
+          "isRisky": true,
+          "riskLevel": "critical",
+          "description": "Device administrator privileges, can lock/wipe device",
+          "protectionLevel": "signature"
+        },
+        {
+          "permission": "android.permission.CAMERA",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Camera access could enable unauthorized photo/video capture",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.RECEIVE_BOOT_COMPLETED",
+          "isRisky": true,
+          "riskLevel": "low",
+          "description": "App starts on device boot, persistence mechanism",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.READ_CONTACTS",
+          "isRisky": true,
+          "riskLevel": "high",
+          "description": "Access to all contact information, privacy risk for user and contacts",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.READ_PHONE_STATE",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Access to phone identity (IMEI, phone number)",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.BIND_ACCESSIBILITY_SERVICE",
+          "isRisky": true,
+          "riskLevel": "critical",
+          "description": "Full screen access and input simulation, complete device control possible",
+          "protectionLevel": "signature"
+        }
+      ],
+      "vulnerabilities": [
+        {
+          "id": "1774200999938-pafecf8az",
+          "type": "Data Security",
+          "severity": "medium",
+          "title": "Application Data Backup Enabled",
+          "description": "The android:allowBackup flag is true, allowing users to backup application data via ADB. Sensitive data could be extracted from device backups.",
+          "location": "AndroidManifest.xml - application tag",
+          "recommendation": "Set android:allowBackup=\"false\" or implement a custom BackupAgent that excludes sensitive data.",
+          "cweId": "CWE-530"
+        },
+        {
+          "id": "1774201000010-a3xy6cwu2",
+          "type": "Component Security",
+          "severity": "medium",
+          "title": "Exported Broadcast Receiver",
+          "description": "Receiver \"com.finance.banking.BootReceiver\" is exported and can receive broadcasts from any application. Verify that this is intentional and input is properly validated.",
+          "location": "AndroidManifest.xml - com.finance.banking.BootReceiver",
+          "recommendation": "Consider using LocalBroadcastManager for internal broadcasts or add permission protection.",
+          "cweId": "CWE-925"
+        },
+        {
+          "id": "1774201000108-7cg9yu39b",
+          "type": "Compatibility Risk",
+          "severity": "low",
+          "title": "Low Minimum SDK Version",
+          "description": "The app targets SDK 21, which lacks security features like runtime permissions and network security configuration defaults.",
+          "location": "AndroidManifest.xml - uses-sdk",
+          "recommendation": "Consider raising minSdkVersion to at least 23 (Android 6.0) for better security defaults.",
+          "cweId": "CWE-693"
+        },
+        {
+          "id": "1774201000172-ay34vpgyz",
+          "type": "Secrets Management",
+          "severity": "critical",
+          "title": "Hardcoded API Key Detected",
+          "description": "A potential API key or secret was found hardcoded in the application code. This could be extracted through reverse engineering.",
+          "location": "com.finance.banking.apprelea.BuildConfig.java",
+          "recommendation": "Move secrets to a secure backend or use Android Keystore for sensitive credentials.",
+          "cweId": "CWE-798"
+        },
+        {
+          "id": "1774201000240-28ac9neqm",
+          "type": "Network Security",
+          "severity": "medium",
+          "title": "Cleartext HTTP Traffic Allowed",
+          "description": "The application allows cleartext HTTP traffic. Network communications could be intercepted by attackers on the same network.",
+          "location": "network_security_config.xml",
+          "recommendation": "Use HTTPS for all network communications. Add a network security config that blocks cleartext traffic.",
+          "cweId": "CWE-319"
+        }
+      ]
+    },
+    {
+      "id": "1774201000864-a20oq08ob",
+      "apkId": "1774200996329-y81ivhlml",
+      "userId": "1774200915065-b2mr914b5",
+      "createdAt": "2026-03-22T17:36:40.873Z",
+      "completedAt": "2026-03-22T17:36:40.873Z",
+      "status": "completed",
+      "summary": {
+        "totalVulnerabilities": 5,
+        "critical": 1,
+        "high": 0,
+        "medium": 3,
+        "low": 1,
+        "riskScore": 52
+      },
+      "manifest": {
+        "packageName": "com.finance.banking.apprelea",
+        "versionName": "1.5.65",
+        "versionCode": 665,
+        "minSdkVersion": 21,
+        "targetSdkVersion": 31,
+        "permissions": [
+          "android.permission.RECORD_AUDIO",
+          "android.permission.SYSTEM_ALERT_WINDOW",
+          "android.permission.WRITE_CONTACTS",
+          "android.permission.READ_EXTERNAL_STORAGE",
+          "android.permission.BIND_DEVICE_ADMIN",
+          "android.permission.CAMERA",
+          "android.permission.RECEIVE_BOOT_COMPLETED",
+          "android.permission.READ_CONTACTS",
+          "android.permission.READ_PHONE_STATE",
+          "android.permission.BIND_ACCESSIBILITY_SERVICE"
+        ],
+        "activities": [
+          "com.finance.banking.MainActivity",
+          "com.finance.banking.LoginActivity",
+          "com.finance.banking.SettingsActivity"
+        ],
+        "services": [
+          "com.finance.banking.SyncService"
+        ],
+        "receivers": [
+          "com.finance.banking.BootReceiver"
+        ],
+        "providers": [],
+        "exported": {
+          "activities": [],
+          "services": [],
+          "receivers": [
+            "com.finance.banking.BootReceiver"
+          ],
+          "providers": []
+        },
+        "debuggable": false,
+        "allowBackup": true
+      },
+      "permissions": [
+        {
+          "permission": "android.permission.RECORD_AUDIO",
+          "isRisky": true,
+          "riskLevel": "high",
+          "description": "Microphone access could enable audio surveillance",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.SYSTEM_ALERT_WINDOW",
+          "isRisky": true,
+          "riskLevel": "high",
+          "description": "Can draw over other apps, enables clickjacking attacks",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.WRITE_CONTACTS",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Can modify contact data, risk of data corruption or injection",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.READ_EXTERNAL_STORAGE",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Can read files from external storage including photos and documents",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.BIND_DEVICE_ADMIN",
+          "isRisky": true,
+          "riskLevel": "critical",
+          "description": "Device administrator privileges, can lock/wipe device",
+          "protectionLevel": "signature"
+        },
+        {
+          "permission": "android.permission.CAMERA",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Camera access could enable unauthorized photo/video capture",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.RECEIVE_BOOT_COMPLETED",
+          "isRisky": true,
+          "riskLevel": "low",
+          "description": "App starts on device boot, persistence mechanism",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.READ_CONTACTS",
+          "isRisky": true,
+          "riskLevel": "high",
+          "description": "Access to all contact information, privacy risk for user and contacts",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.READ_PHONE_STATE",
+          "isRisky": true,
+          "riskLevel": "medium",
+          "description": "Access to phone identity (IMEI, phone number)",
+          "protectionLevel": "dangerous"
+        },
+        {
+          "permission": "android.permission.BIND_ACCESSIBILITY_SERVICE",
+          "isRisky": true,
+          "riskLevel": "critical",
+          "description": "Full screen access and input simulation, complete device control possible",
+          "protectionLevel": "signature"
+        }
+      ],
+      "vulnerabilities": [
+        {
+          "id": "1774200999975-00lqj6u8x",
+          "type": "Data Security",
+          "severity": "medium",
+          "title": "Application Data Backup Enabled",
+          "description": "The android:allowBackup flag is true, allowing users to backup application data via ADB. Sensitive data could be extracted from device backups.",
+          "location": "AndroidManifest.xml - application tag",
+          "recommendation": "Set android:allowBackup=\"false\" or implement a custom BackupAgent that excludes sensitive data.",
+          "cweId": "CWE-530"
+        },
+        {
+          "id": "1774201000055-htkgfyh58",
+          "type": "Component Security",
+          "severity": "medium",
+          "title": "Exported Broadcast Receiver",
+          "description": "Receiver \"com.finance.banking.BootReceiver\" is exported and can receive broadcasts from any application. Verify that this is intentional and input is properly validated.",
+          "location": "AndroidManifest.xml - com.finance.banking.BootReceiver",
+          "recommendation": "Consider using LocalBroadcastManager for internal broadcasts or add permission protection.",
+          "cweId": "CWE-925"
+        },
+        {
+          "id": "1774201000139-bb3aa05wo",
+          "type": "Compatibility Risk",
+          "severity": "low",
+          "title": "Low Minimum SDK Version",
+          "description": "The app targets SDK 21, which lacks security features like runtime permissions and network security configuration defaults.",
+          "location": "AndroidManifest.xml - uses-sdk",
+          "recommendation": "Consider raising minSdkVersion to at least 23 (Android 6.0) for better security defaults.",
+          "cweId": "CWE-693"
+        },
+        {
+          "id": "1774201000208-t2e0i2a77",
+          "type": "Secrets Management",
+          "severity": "critical",
+          "title": "Hardcoded API Key Detected",
+          "description": "A potential API key or secret was found hardcoded in the application code. This could be extracted through reverse engineering.",
+          "location": "com.finance.banking.apprelea.BuildConfig.java",
+          "recommendation": "Move secrets to a secure backend or use Android Keystore for sensitive credentials.",
+          "cweId": "CWE-798"
+        },
+        {
+          "id": "1774201000324-kukg6yc51",
+          "type": "Network Security",
+          "severity": "medium",
+          "title": "Cleartext HTTP Traffic Allowed",
+          "description": "The application allows cleartext HTTP traffic. Network communications could be intercepted by attackers on the same network.",
+          "location": "network_security_config.xml",
+          "recommendation": "Use HTTPS for all network communications. Add a network security config that blocks cleartext traffic.",
+          "cweId": "CWE-319"
+        }
+      ]
+    }
+  ]
+}

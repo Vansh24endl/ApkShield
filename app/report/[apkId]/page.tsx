@@ -1,0 +1,419 @@
+'use client'
+
+import { useEffect, useState, use } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { 
+  Shield, 
+  FileText, 
+  Download, 
+  ChevronLeft, 
+  Package,
+  Code,
+  Key,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Info
+} from 'lucide-react'
+import { Header } from '@/components/layout/header'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { RiskScoreGauge } from '@/components/ui/risk-score-gauge'
+import { SeverityBadge } from '@/components/ui/severity-badge'
+import { VulnerabilityCard } from '@/components/report/vulnerability-card'
+import { 
+  VulnerabilitySeverityChart, 
+  VulnerabilityTypeChart,
+  PermissionRiskChart 
+} from '@/components/report/vulnerability-charts'
+import { useAuth } from '@/lib/auth-context'
+import { getAPKById, getReportByAPKId } from '@/lib/services/database'
+import { generatePDFReport } from '@/lib/pdf-generator'
+import type { APKMetadata, AnalysisReport } from '@/lib/types'
+import { cn } from '@/lib/utils'
+
+interface PageProps {
+  params: Promise<{ apkId: string }>
+}
+
+export default function ReportPage({ params }: PageProps) {
+  const { apkId } = use(params)
+  const { user, isLoading: authLoading, isAuthenticated } = useAuth()
+  const router = useRouter()
+  
+  const [apk, setApk] = useState<APKMetadata | null>(null)
+  const [report, setReport] = useState<AnalysisReport | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login')
+    }
+  }, [authLoading, isAuthenticated, router])
+
+  useEffect(() => {
+    if (!user || !apkId) return
+
+    const loadData = async () => {
+      const apkData = await getAPKById(apkId)
+      if (!apkData) {
+        setError('APK not found')
+        return
+      }
+      
+      if (apkData.userId !== user.id) {
+        setError('Unauthorized access')
+        return
+      }
+
+      setApk(apkData)
+      
+      const reportData = await getReportByAPKId(apkId)
+      if (!reportData) {
+        setError('Report not found. The APK may not have been analyzed yet.')
+        return
+      }
+      
+      setReport(reportData)
+    }
+    
+    loadData()
+  }, [user, apkId])
+
+  const handleDownloadPDF = () => {
+    if (report && apk) {
+      generatePDFReport(report, apk)
+    }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return null
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="mx-auto max-w-2xl px-4 py-24 text-center">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
+            <XCircle className="h-10 w-10 text-destructive" />
+          </div>
+          <h1 className="text-2xl font-bold">Report Error</h1>
+          <p className="mt-2 text-muted-foreground">{error}</p>
+          <div className="mt-8 flex justify-center gap-4">
+            <Button onClick={() => router.push('/dashboard')}>
+              Go to Dashboard
+            </Button>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (!report || !apk) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <Link 
+              href="/history" 
+              className="mb-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back to History
+            </Link>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Security Analysis Report
+            </h1>
+            <p className="mt-1 font-mono text-sm text-muted-foreground">
+              {apk.fileName}
+            </p>
+          </div>
+          <Button onClick={handleDownloadPDF} className="gap-2">
+            <Download className="h-4 w-4" />
+            Download PDF
+          </Button>
+        </div>
+
+        {/* Summary Cards */}
+        <div className="mb-8 grid gap-6 lg:grid-cols-4">
+          {/* Risk Score */}
+          <div className="rounded-xl border border-border bg-card p-6 flex flex-col items-center justify-center">
+            <RiskScoreGauge score={report.summary.riskScore} size="lg" />
+            <p className="mt-2 text-sm text-muted-foreground">Overall Risk Score</p>
+          </div>
+          
+          {/* Vulnerability Breakdown */}
+          <div className="rounded-xl border border-border bg-card p-6 lg:col-span-3">
+            <h3 className="font-semibold mb-4">Vulnerability Summary</h3>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-4 text-center">
+                <div className="text-3xl font-bold text-red-400">{report.summary.critical}</div>
+                <div className="text-sm text-muted-foreground">Critical</div>
+              </div>
+              <div className="rounded-lg bg-orange-500/10 border border-orange-500/30 p-4 text-center">
+                <div className="text-3xl font-bold text-orange-400">{report.summary.high}</div>
+                <div className="text-sm text-muted-foreground">High</div>
+              </div>
+              <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/30 p-4 text-center">
+                <div className="text-3xl font-bold text-yellow-400">{report.summary.medium}</div>
+                <div className="text-sm text-muted-foreground">Medium</div>
+              </div>
+              <div className="rounded-lg bg-blue-500/10 border border-blue-500/30 p-4 text-center">
+                <div className="text-3xl font-bold text-blue-400">{report.summary.low}</div>
+                <div className="text-sm text-muted-foreground">Low</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabbed Content */}
+        <Tabs defaultValue="vulnerabilities" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+            <TabsTrigger value="vulnerabilities" className="gap-2">
+              <AlertTriangle className="h-4 w-4" />
+              <span className="hidden sm:inline">Vulnerabilities</span>
+            </TabsTrigger>
+            <TabsTrigger value="permissions" className="gap-2">
+              <Key className="h-4 w-4" />
+              <span className="hidden sm:inline">Permissions</span>
+            </TabsTrigger>
+            <TabsTrigger value="manifest" className="gap-2">
+              <Code className="h-4 w-4" />
+              <span className="hidden sm:inline">Manifest</span>
+            </TabsTrigger>
+            <TabsTrigger value="charts" className="gap-2">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Charts</span>
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Vulnerabilities Tab */}
+          <TabsContent value="vulnerabilities">
+            <div className="rounded-xl border border-border bg-card p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold">
+                  Detected Vulnerabilities ({report.vulnerabilities.length})
+                </h2>
+              </div>
+              
+              {report.vulnerabilities.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <CheckCircle className="h-12 w-12 text-green-400 mb-4" />
+                  <h3 className="text-lg font-medium">No vulnerabilities detected</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    The application passed all security checks
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {report.vulnerabilities.map((vuln, index) => (
+                    <VulnerabilityCard 
+                      key={vuln.id} 
+                      vulnerability={vuln} 
+                      index={index}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Permissions Tab */}
+          <TabsContent value="permissions">
+            <div className="rounded-xl border border-border bg-card p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold">
+                  Permissions Analysis ({report.permissions.length})
+                </h2>
+              </div>
+              
+              <div className="grid gap-3 sm:grid-cols-2">
+                {report.permissions.map((perm) => (
+                  <div
+                    key={perm.permission}
+                    className={cn(
+                      'rounded-lg border p-4 transition-colors',
+                      perm.isRisky 
+                        ? 'border-orange-500/30 bg-orange-500/5' 
+                        : 'border-border bg-muted/30'
+                    )}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <code className="text-xs font-mono break-all">
+                          {perm.permission.replace('android.permission.', '')}
+                        </code>
+                      </div>
+                      {perm.isRisky && (
+                        <SeverityBadge severity={perm.riskLevel} />
+                      )}
+                    </div>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {perm.description}
+                    </p>
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      Protection: <span className="font-medium">{perm.protectionLevel}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Manifest Tab */}
+          <TabsContent value="manifest">
+            <div className="rounded-xl border border-border bg-card p-6">
+              <h2 className="text-lg font-semibold mb-6">Application Manifest</h2>
+              
+              <div className="grid gap-6 lg:grid-cols-2">
+                {/* Basic Info */}
+                <div className="space-y-4">
+                  <h3 className="font-medium flex items-center gap-2">
+                    <Package className="h-4 w-4 text-muted-foreground" />
+                    Package Information
+                  </h3>
+                  <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+                    <div>
+                      <div className="text-xs text-muted-foreground">Package Name</div>
+                      <div className="font-mono text-sm">{report.manifest.packageName}</div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <div className="text-xs text-muted-foreground">Version Name</div>
+                        <div className="font-mono text-sm">{report.manifest.versionName}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-muted-foreground">Version Code</div>
+                        <div className="font-mono text-sm">{report.manifest.versionCode}</div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <div className="text-xs text-muted-foreground">Min SDK</div>
+                        <div className="font-mono text-sm">API {report.manifest.minSdkVersion}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-muted-foreground">Target SDK</div>
+                        <div className="font-mono text-sm">API {report.manifest.targetSdkVersion}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Security Flags */}
+                <div className="space-y-4">
+                  <h3 className="font-medium flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-muted-foreground" />
+                    Security Configuration
+                  </h3>
+                  <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Debuggable</span>
+                      <span className={cn(
+                        'flex items-center gap-1 text-sm font-medium',
+                        report.manifest.debuggable ? 'text-red-400' : 'text-green-400'
+                      )}>
+                        {report.manifest.debuggable ? (
+                          <><XCircle className="h-4 w-4" /> Yes</>
+                        ) : (
+                          <><CheckCircle className="h-4 w-4" /> No</>
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Allow Backup</span>
+                      <span className={cn(
+                        'flex items-center gap-1 text-sm font-medium',
+                        report.manifest.allowBackup ? 'text-yellow-400' : 'text-green-400'
+                      )}>
+                        {report.manifest.allowBackup ? (
+                          <><Info className="h-4 w-4" /> Yes</>
+                        ) : (
+                          <><CheckCircle className="h-4 w-4" /> No</>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Components */}
+                <div className="lg:col-span-2 space-y-4">
+                  <h3 className="font-medium">Application Components</h3>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="rounded-lg border border-border p-4">
+                      <div className="text-2xl font-bold">{report.manifest.activities.length}</div>
+                      <div className="text-sm text-muted-foreground">Activities</div>
+                      <div className="mt-1 text-xs text-orange-400">
+                        {report.manifest.exported.activities.length} exported
+                      </div>
+                    </div>
+                    <div className="rounded-lg border border-border p-4">
+                      <div className="text-2xl font-bold">{report.manifest.services.length}</div>
+                      <div className="text-sm text-muted-foreground">Services</div>
+                      <div className="mt-1 text-xs text-orange-400">
+                        {report.manifest.exported.services.length} exported
+                      </div>
+                    </div>
+                    <div className="rounded-lg border border-border p-4">
+                      <div className="text-2xl font-bold">{report.manifest.receivers.length}</div>
+                      <div className="text-sm text-muted-foreground">Receivers</div>
+                      <div className="mt-1 text-xs text-orange-400">
+                        {report.manifest.exported.receivers.length} exported
+                      </div>
+                    </div>
+                    <div className="rounded-lg border border-border p-4">
+                      <div className="text-2xl font-bold">{report.manifest.providers.length}</div>
+                      <div className="text-sm text-muted-foreground">Providers</div>
+                      <div className="mt-1 text-xs text-orange-400">
+                        {report.manifest.exported.providers.length} exported
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Charts Tab */}
+          <TabsContent value="charts">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-xl border border-border bg-card p-6">
+                <h3 className="font-semibold mb-4">Severity Distribution</h3>
+                <VulnerabilitySeverityChart report={report} />
+              </div>
+              <div className="rounded-xl border border-border bg-card p-6">
+                <h3 className="font-semibold mb-4">Vulnerability Types</h3>
+                <VulnerabilityTypeChart report={report} />
+              </div>
+              <div className="rounded-xl border border-border bg-card p-6 lg:col-span-2">
+                <h3 className="font-semibold mb-4">Permission Risk Distribution</h3>
+                <PermissionRiskChart report={report} />
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
+  )
+}
