@@ -115,12 +115,6 @@ export default function PipelineView() {
                 </span>
               )}
             </div>
-            {job.status === "Completed" && (
-              <Button onClick={handleDownload} className="gap-2 shadow-lg animate-pulse hover:animate-none">
-                <Download className="h-4 w-4" />
-                Download Secure APK
-              </Button>
-            )}
           </CardHeader>
           <CardContent className="p-0">
             <div className="relative flex h-72 flex-col bg-[#0a0a0a] p-5 overflow-hidden">
@@ -142,6 +136,23 @@ export default function PipelineView() {
                   <div className="text-emerald-600/50 animate-pulse ml-2">_</div>
                 )}
               </div>
+
+              {job.status === "Completed" && (
+                <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                  <Button onClick={handleDownload} className="gap-2 shadow-[0_0_15px_rgba(var(--primary),0.5)] animate-pulse hover:animate-none flex-1 font-semibold text-md h-12">
+                    <Download className="h-5 w-5" />
+                    Download Secure APK
+                  </Button>
+                  <Button onClick={() => window.location.href = '/dashboard'} variant="outline" className="gap-2 hover:bg-primary/10 flex-1 font-semibold text-md h-12 border-primary/50 text-white dark:text-white">
+                    <Shield className="h-5 w-5 text-primary" />
+                    Go to Dashboard
+                  </Button>
+                  <Button onClick={() => window.location.href = `/report/${id}`} variant="outline" className="gap-2 hover:bg-emerald-500/10 flex-1 font-semibold text-md h-12 border-emerald-500/50 text-white dark:text-white">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                    View Detailed Report
+                  </Button>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

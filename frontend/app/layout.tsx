@@ -3,6 +3,8 @@ import { JetBrains_Mono, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/lib/auth-context'
+import { Footer } from '@/components/layout/footer'
+import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 const inter = Inter({ 
@@ -32,22 +34,25 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground`}>
-        <AuthProvider>
-          {children}
-          <Toaster 
-            theme="dark" 
-            position="top-right"
-            toastOptions={{
-              style: {
-                background: 'oklch(0.14 0.015 260)',
-                border: '1px solid oklch(0.25 0.02 260)',
-                color: 'oklch(0.95 0.01 260)',
-              },
-            }}
-          />
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            <div className="flex flex-col min-h-screen">
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+            <Toaster 
+              theme="system" 
+              position="top-right"
+            />
+          </AuthProvider>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

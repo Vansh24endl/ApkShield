@@ -35,8 +35,18 @@ const severityConfig: Record<Severity, { bg: string; text: string; border: strin
 }
 
 export function SeverityBadge({ severity, className, showLabel = true }: SeverityBadgeProps) {
-  const config = severityConfig[severity]
-  
+  const normalizedSeverity = (severity?.toLowerCase() as Severity) || 'info'
+  // Fallback if not found in config
+  let config = severityConfig[normalizedSeverity]
+  if (!config) {
+    config = {
+      bg: 'bg-muted',
+      text: 'text-muted-foreground',
+      border: 'border-border',
+      label: String(severity || 'Unknown'),
+    }
+  }
+
   return (
     <span
       className={cn(
@@ -48,10 +58,11 @@ export function SeverityBadge({ severity, className, showLabel = true }: Severit
       )}
     >
       <span className={cn('h-1.5 w-1.5 rounded-full', {
-        'bg-red-400': severity === 'critical',
-        'bg-orange-400': severity === 'high',
-        'bg-yellow-400': severity === 'medium',
-        'bg-blue-400': severity === 'low',
+        'bg-red-400': normalizedSeverity === 'critical',
+        'bg-orange-400': normalizedSeverity === 'high',
+        'bg-yellow-400': normalizedSeverity === 'medium',
+        'bg-blue-400': normalizedSeverity === 'low',
+        'bg-slate-400': !['critical', 'high', 'medium', 'low'].includes(normalizedSeverity),
       })} />
       {showLabel && config.label}
     </span>

@@ -36,6 +36,9 @@ export default function UploadPage() {
       const formData = new FormData()
       formData.append('apk', selectedFile)
       formData.append('layers', JSON.stringify(['Obfuscation', 'Anti-Tamper'])) // Demo mock layers
+      if (user?.id) {
+          formData.append('userId', user.id)
+      }
 
       const response = await fetch('http://localhost:5000/api/apk/upload', {
         method: 'POST',

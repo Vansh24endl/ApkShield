@@ -1,14 +1,11 @@
-'use client'
-
 import Link from 'next/link'
-import { Shield, Bug, FileSearch, Lock, ChevronRight, Zap, Eye, BarChart3 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Shield, Bug, FileSearch, Lock, Zap, BarChart3, Users } from 'lucide-react'
 import { Header } from '@/components/layout/header'
-import { useAuth } from '@/lib/auth-context'
+import { HeroActions } from '@/components/hero-actions'
+import { CtaActions } from '@/components/cta-actions'
+import { TeamMemberPhoto } from '@/components/team-member-photo'
 
 export default function HomePage() {
-  const { isAuthenticated } = useAuth()
-
   const features = [
     {
       icon: FileSearch,
@@ -72,38 +69,10 @@ export default function HomePage() {
               in seconds.
             </p>
             
-            {/* CTA Buttons */}
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              {isAuthenticated ? (
-                <Link href="/dashboard">
-                  <Button size="lg" className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-                    Go to Dashboard
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-              ) : (
-                <>
-                  <Link href="/signup">
-                    <Button size="lg" className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-                      Start Free Analysis
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Link href="/login">
-                    <Button size="lg" variant="outline" className="gap-2">
-                      Sign In
-                    </Button>
-                  </Link>
-                </>
-              )}
+            {/* CTA Buttons - Using Client Component Island */}
+            <div className="mt-10">
+              <HeroActions />
             </div>
-            
-            {/* Demo credentials */}
-            {!isAuthenticated && (
-              <p className="mt-4 text-sm text-muted-foreground">
-                Demo: analyst@example.com / demo123
-              </p>
-            )}
           </div>
         </div>
       </section>
@@ -198,32 +167,67 @@ export default function HomePage() {
                 Start analyzing your APK files today and discover vulnerabilities before attackers do.
               </p>
               <div className="mt-8">
-                <Link href={isAuthenticated ? '/upload' : '/signup'}>
-                  <Button size="lg" className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-                    <Eye className="h-5 w-5" />
-                    {isAuthenticated ? 'Upload APK Now' : 'Get Started Free'}
-                  </Button>
-                </Link>
+                <CtaActions />
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border/50 py-8">
+      {/* Team Section */}
+      <section id="team" className="py-24 bg-muted/30 border-t border-border/50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              <span className="font-semibold">APK Shield</span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Professional Android Security Analysis Platform
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Meet Our Team
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+              The dedicated minds behind APK Shield
             </p>
           </div>
+          
+          <div className="mt-16 flex flex-wrap justify-center gap-8 sm:gap-12">
+            {[
+              {
+                name: 'Vansh Dhumal',
+                role: 'Team Leader',
+                description: 'Full Stack Developer & Security Architect leading the technical vision.',
+                imageSrc: '/team/vansh.jpeg'
+              },
+              {
+                name: 'Aaryesh Namdeo',
+                role: 'Security Researcher',
+                description: 'Backend Developer specializing in static and dynamic analysis workflows.',
+                imageSrc: '/team/aaryesh.png'
+              },
+              {
+                name: 'Nupur Barskar',
+                role: 'UI/UX Designer',
+                description: 'Frontend Developer crafting intuitive and responsive user experiences.',
+                imageSrc: '/team/nupur.jpg'
+              },
+              {
+                name: 'Kanak Patil',
+                role: 'QA & Cloud Engineer',
+                description: 'Ensuring seamless deployment, database management, and testing.',
+                imageSrc: '/team/kanak.jpg'
+              },
+            ].map((member) => (
+              <div
+                key={member.name}
+                className="group relative flex w-64 flex-col items-center rounded-xl border border-border bg-card p-6 text-center shadow-sm transition-all duration-300 hover:z-10 hover:-translate-y-6 hover:scale-110 hover:border-primary/50 hover:bg-card/90 hover:shadow-2xl"
+              >
+                <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-primary/20 bg-primary/10 text-primary transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-[0_0_20px_rgba(var(--primary),0.4)]">
+                  <TeamMemberPhoto src={member.imageSrc} alt={member.name} />
+                </div>
+                <h3 className="mb-1 text-lg font-semibold transition-all duration-300 group-hover:text-primary">{member.name}</h3>
+                <p className="mb-3 text-sm font-medium text-primary transition-all duration-300">{member.role}</p>
+                <p className="text-sm text-muted-foreground transition-opacity duration-300 group-hover:opacity-100">{member.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </footer>
+      </section>
     </div>
   )
 }

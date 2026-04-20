@@ -76,64 +76,69 @@ export function FileDropzone({ onFileSelect, isUploading = false, className }: F
   }
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn('w-full group', className)}>
       {!selectedFile ? (
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           className={cn(
-            'relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 transition-all cursor-pointer',
+            'relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-16 transition-all duration-500 ease-out cursor-pointer overflow-hidden',
             isDragging
-              ? 'border-primary bg-primary/5 scale-[1.02]'
-              : 'border-border hover:border-primary/50 hover:bg-muted/50',
-            error && 'border-destructive'
+              ? 'border-primary bg-primary/10 scale-105 shadow-[0_0_40px_rgba(var(--primary),0.2)]'
+              : 'border-border/50 hover:border-primary hover:bg-muted/50 hover:shadow-2xl',
+            error && 'border-destructive bg-destructive/5'
           )}
         >
           <input
             type="file"
             accept=".apk"
             onChange={handleFileInput}
-            className="absolute inset-0 opacity-0 cursor-pointer"
+            className="absolute inset-0 opacity-0 cursor-pointer z-20"
             disabled={isUploading}
           />
           
           <div className={cn(
-            'flex h-16 w-16 items-center justify-center rounded-full mb-4 transition-all',
-            isDragging ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
+            'flex h-20 w-20 items-center justify-center rounded-2xl mb-6 transition-all duration-500 z-10',
+            isDragging 
+              ? 'bg-primary text-primary-foreground shadow-lg scale-110 rotate-12' 
+              : 'bg-primary/10 text-primary group-hover:bg-primary/20 group-hover:scale-110 group-hover:-translate-y-2'
           )}>
-            <Upload className="h-8 w-8" />
+            <Upload className="h-10 w-10" />
           </div>
           
-          <h3 className="text-lg font-semibold mb-1">
-            {isDragging ? 'Drop your APK here' : 'Upload APK File'}
+          <h3 className="text-xl font-bold mb-2 tracking-tight z-10 transition-colors">
+            {isDragging ? 'Release to upload APK...' : 'Drag & Drop your APK here'}
           </h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Drag and drop or click to browse
+          <p className="text-sm border-b border-transparent text-muted-foreground mb-6 z-10 group-hover:border-primary/30 pb-1 transition-all">
+            or click to browse from your computer
           </p>
-          <p className="text-xs text-muted-foreground">
+          <span className="text-xs font-semibold px-3 py-1 bg-muted rounded-full text-muted-foreground z-10">
             Supported: .apk files up to 100MB
-          </p>
+          </span>
           
-          {/* Animated border effect */}
+          {/* Animated background effects */}
+          <div className="absolute inset-0 z-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
           {isDragging && (
-            <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 animate-pulse" />
+            <div className="absolute inset-0 z-0 rounded-2xl overflow-hidden pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 animate-[pulse_2s_ease-in-out_infinite]" />
             </div>
           )}
         </div>
       ) : (
-        <div className="rounded-xl border border-border bg-card p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <FileIcon className="h-6 w-6" />
+        <div className="rounded-2xl border border-border/50 bg-gradient-to-br from-card to-muted p-6 shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700"></div>
+          <div className="flex items-start justify-between relative z-10">
+            <div className="flex items-center gap-5 w-full">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/20 text-primary shadow-sm ring-1 ring-primary/30">
+                <FileIcon className="h-7 w-7" />
               </div>
-              <div>
-                <p className="font-medium truncate max-w-xs">{selectedFile.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {formatFileSize(selectedFile.size)}
-                </p>
+              <div className="flex-1 overflow-hidden">
+                <p className="font-semibold text-lg truncate w-[90%] text-foreground">{selectedFile.name}</p>
+                <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+                  <span className="bg-background px-2 py-0.5 rounded shadow-sm">{formatFileSize(selectedFile.size)}</span>
+                  {!isUploading && <span className="text-primary font-medium flex items-center gap-1"><AlertCircle className="h-3 w-3" /> Ready</span>}
+                </div>
               </div>
             </div>
             {!isUploading && (
@@ -141,19 +146,24 @@ export function FileDropzone({ onFileSelect, isUploading = false, className }: F
                 variant="ghost"
                 size="icon"
                 onClick={clearFile}
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                className="h-9 w-9 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all rounded-full shrink-0 absolute -top-2 -right-2 opacity-50 hover:opacity-100"
               >
                 <X className="h-4 w-4" />
               </Button>
             )}
           </div>
+          {isUploading && (
+            <div className="mt-4 h-1 w-full bg-muted rounded-full overflow-hidden">
+               <div className="h-full bg-primary w-full origin-left animate-[pulse_1s_ease-in-out_infinite] scale-x-50"></div>
+            </div>
+          )}
         </div>
       )}
 
       {error && (
-        <div className="mt-4 flex items-center gap-2 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4" />
-          {error}
+        <div className="mt-4 flex items-center gap-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 p-3 rounded-lg animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="h-5 w-5 shrink-0" />
+          <span className="font-medium">{error}</span>
         </div>
       )}
     </div>

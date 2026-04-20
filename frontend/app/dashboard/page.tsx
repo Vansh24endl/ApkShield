@@ -12,12 +12,16 @@ import {
   Activity,
   ShieldAlert,
   Clock,
-  Trash
-} from 'lucide-react'
+  Trash,
+  Zap,
+  Settings
+}
+from 'lucide-react'
 import { Header } from '@/components/layout/header'
 import { StatsCard } from '@/components/dashboard/stats-card'
 import { ScanHistoryTable } from '@/components/dashboard/scan-history-table'
 import { Button } from '@/components/ui/button'
+import { GlassActionsPanel } from '@/components/ui/glass-actions'
 import { useAuth } from '@/lib/auth-context'
 import { getAPKsByUserId, getDashboardStats, getReportsByUserId, clearAllScans } from '@/lib/services/database'
 import type { APKMetadata, AnalysisReport } from '@/lib/types'
@@ -192,8 +196,16 @@ export default function DashboardPage() {
                     View Scan History
                   </Button>
                 </Link>
+                <Link href="/settings" className="block">
+                  <Button variant="outline" className="w-full justify-start gap-2 transition-colors hover:border-primary/50 hover:bg-primary/5">
+                    <Settings className="h-4 w-4" />
+                    Account Settings
+                  </Button>
+                </Link>
               </div>
             </div>
+
+
 
             {/* Recent Activity */}
             <div className="rounded-xl border border-border bg-card p-4">

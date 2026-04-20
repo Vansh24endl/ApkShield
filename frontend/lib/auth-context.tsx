@@ -41,6 +41,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   loginWithOtp: (email: string, otp: string) => Promise<{ success: boolean; error?: string }>
   signup: (email: string, password: string, name: string, role: UserRole) => Promise<{ success: boolean; error?: string; requireOtp?: boolean }>
+  loginWithGoogle: () => Promise<{ success: boolean; error?: string }>
   logout: () => void
 }
 
@@ -150,6 +151,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  const loginWithGoogle = useCallback(async () => {
+    try {
+      const { signInWithPopup } = await import('firebase/auth')
+      const { auth, googleProvider } = await import('@/lib/firebase')
+
+      // Optional: Check if Firebase is actually configured
+      if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        console.warn('Firebase API key missing. Simulating Google Login with Demo account...')
+        const mockUser = await findUserByEmail('analyst@example.com')
+        if (mockUser) {
+           const token = generateToken(mockUser)
+           localStorage.setItem(AUTH_TOKEN_KEY, token)
+           setUser(mockUser)
+           return { success: true }
+        }
+        return { success: false, error: 'Firebase configuration is missing in .env.local file.' }
+      }
+
+      const result = await signInWithPopup(auth, googleProvider)
+      const email = result.user.email
+      const name = result.user.displayName || 'Google User'
+
+      if (!email) {
+         return { success: false, error: 'Google did not provide an email address.' }
+      }
+
+      // Ensure user is in our local DB
+      let dbUser = await findUserByEmail(email)
+      
+      if (!dbUser) {
+        // Create an account automatically for new Google users
+        const mockPassword = Math.random().toString(36).slice(-10) + 'A1!'
+        dbUser = await createUser({ email, name, password: mockPassword, role: 'security_analyst' })
+      }
+
+      const token = generateToken(dbUser)
+      localStorage.setItem(AUTH_TOKEN_KEY, token)
+      setUser(dbUser)
+      
+      return { success: true }
+    } catch (error: any) {
+      console.error('Google login error:', error)
+      return { success: false, error: error.message || 'Google Login process was interrupted.' }
+    }
+  }, [])
+
   const logout = useCallback(() => {
     localStorage.removeItem(AUTH_TOKEN_KEY)
     setUser(null)
@@ -164,6 +211,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         loginWithOtp,
         signup,
+        loginWithGoogle,
         logout,
       }}
     >

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Shield, Menu, X, User, LogOut, LayoutDashboard, Upload, History } from 'lucide-react'
+import { Shield, Menu, X, User, LogOut, LayoutDashboard, Upload, History, Settings } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -67,6 +68,7 @@ export function Header() {
 
         {/* User Menu / Auth Buttons */}
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -86,6 +88,12 @@ export function Header() {
                   </span>
                 </div>
                 <DropdownMenuSeparator />
+                <Link href="/settings">
+                  <DropdownMenuItem className="cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </DropdownMenuItem>
+                </Link>
                 <DropdownMenuItem onClick={logout} className="text-destructive cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign Out
