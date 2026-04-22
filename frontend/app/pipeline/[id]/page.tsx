@@ -9,19 +9,42 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function PipelineView() {
   const { id } = useParams();
   const [job, setJob] = useState<any>(null);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     const fetchStatus = () => {
-      fetch(`http://localhost:5000/api/apk/status/${id}`)
-        .then(res => res.json())
+      const token = localStorage.getItem('apk_shield_token');
+      fetch(`http://localhost:5000/api/apk/status/${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => {
+          if (!res.ok) throw new Error("Failed to fetch");
+          setHasError(false);
+          return res.json();
+        })
         .then(data => setJob(data))
-        .catch(err => console.error("Error fetching job status:", err));
+        .catch(err => {
+          console.error("Error fetching job status:", err);
+          setHasError(true);
+        });
     };
     
     fetchStatus();
     const interval = setInterval(fetchStatus, 3000);
     return () => clearInterval(interval);
   }, [id]);
+
+  if (hasError && !job) return (
+    <div className="min-h-screen bg-background text-foreground p-8 flex items-center justify-center">
+      <Card className="max-w-md w-full border-destructive/50">
+        <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+          <XCircle className="h-16 w-16 text-destructive" />
+          <h2 className="text-xl font-semibold">Connection Lost</h2>
+          <p className="text-muted-foreground">Unable to reach the backend server to check job status. Retrying...</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
 
   if (!job) return (
     <div className="min-h-screen bg-background text-foreground p-8">
@@ -64,7 +87,8 @@ export default function PipelineView() {
   const finalStepIndex = currentStepIndex === -1 ? 5 : currentStepIndex;
 
   const handleDownload = () => {
-    window.location.href = `http://localhost:5000/api/apk/download/${id}`;
+    const token = localStorage.getItem('apk_shield_token');
+    window.location.href = `http://localhost:5000/api/apk/download/${id}?token=${token}`;
   };
 
   return (

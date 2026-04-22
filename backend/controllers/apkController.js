@@ -7,7 +7,7 @@ exports.uploadApk = async (req, res) => {
     if (!req.file) return res.status(400).json({ error: "Invalid APK or no file uploaded." });
     
     const job = new ApkJob({
-      userId: req.body.userId || "demo_analyst", 
+      userId: (req.user && req.user.id) || req.body.userId || "demo_analyst", 
       filename: req.file.originalname,
       originalFilePath: req.file.path,
       layers: req.body.layers ? JSON.parse(req.body.layers) : [],
@@ -16,7 +16,7 @@ exports.uploadApk = async (req, res) => {
     await job.save();
 
     // Trigger asynchronous workflow
-    this.processApkWorkflow(job._id);
+    exports.processApkWorkflow(job._id);
 
     res.status(201).json({ message: "APK uploaded successfully. Awaiting Review.", jobId: job._id });
   } catch (error) {
@@ -39,10 +39,10 @@ exports.processApkWorkflow = async (jobId) => {
 
     // STAGE 2: ANALYSIS ENGINE (Static Analysis)
     await pushLog("ANALYSIS", "Checking dependencies for actual static analysis...", "Assessing Security");
-    const hasToolsForAnalysis = await checkDependencies();
+    const hasTools = await checkDependencies();
 
     let analysisResult;
-    if (hasToolsForAnalysis) {
+    if (hasTools) {
       await pushLog("ANALYSIS", "Extracting manifest and locating vulnerabilities...", "Assessing Security");
       analysisResult = await require('../utils/apkOrchestrator').runActualStaticAnalysis(job._id, job.originalFilePath);
     } else {
@@ -63,9 +63,7 @@ exports.processApkWorkflow = async (jobId) => {
     await pushLog("APPROVAL", "Security assessment approved.", "Approved");
 
     // STAGE 4: INJECTION ENGINE & REPACKING
-    await pushLog("INJECTION", "Checking system dependencies (Apktool, Zipalign, Jarsigner)...", "Injecting Layers");
-    
-    const hasTools = await checkDependencies();
+    await pushLog("INJECTION", "Starting Layer Injection process...", "Injecting Layers");
 
     let finalModifiedPath = `uploads/secured_${job.filename}`;
 
@@ -105,6 +103,12 @@ exports.getJobStatus = async (req, res) => {
   try {
     const job = await ApkJob.findById(req.params.id);
     if (!job) return res.status(404).json({ error: "Not found" });
+    
+    // Authorization Check
+    if (req.user && job.userId !== req.user.id && job.userId !== "demo_analyst") {
+      return res.status(403).json({ error: "Unauthorized access to this job" });
+    }
+    
     res.json(job);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -113,7 +117,8 @@ exports.getJobStatus = async (req, res) => {
 
 exports.getAllJobs = async (req, res) => {
     try {
-        const jobs = await ApkJob.find().sort({ createdAt: -1 });
+        const query = req.user ? { userId: req.user.id } : {};
+        const jobs = await ApkJob.find(query).sort({ createdAt: -1 });
         res.json(jobs);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -124,6 +129,11 @@ exports.downloadApk = async (req, res) => {
   try {
     const job = await ApkJob.findById(req.params.id);
     if (!job) return res.status(404).json({ error: "Job not found" });
+    
+    if (req.user && job.userId !== req.user.id && job.userId !== "demo_analyst") {
+      return res.status(403).json({ error: "Unauthorized access to this file" });
+    }
+    
     if (job.status !== "Completed" || !job.modifiedFilePath) {
       return res.status(400).json({ error: "APK not ready for download" });
     }
@@ -132,11 +142,8 @@ exports.downloadApk = async (req, res) => {
     const path = require('path');
     const dummyPath = path.join(__dirname, '..', job.modifiedFilePath);
     
-    // Create dummy file for simulation if it doesn't exist
     if (!fs.existsSync(dummyPath)) {
-      const dir = path.dirname(dummyPath);
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(dummyPath, "This is a secured dummy APK file for simulation purposes.");
+      return res.status(404).json({ error: "No actual APK generated. Please run with Apktool installed to get a secured APK." });
     }
     
     res.download(dummyPath, `secured_${job.filename}`);

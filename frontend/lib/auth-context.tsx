@@ -15,20 +15,11 @@ import {
 } from '@/lib/services/database'
 import { verifyOtpAndLogin, sendOtpEmail } from '@/lib/services/otp'
 
-// JWT simulation - in production use real JWT library
-function generateToken(user: User): string {
-  const payload = {
-    id: user.id,
-    email: user.email,
-    role: user.role,
-    exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
-  }
-  return btoa(JSON.stringify(payload))
-}
+import jwt from 'jsonwebtoken'
 
-function decodeToken(token: string): { id: string; email: string; role: UserRole; exp: number } | null {
+export function decodeToken(token: string): any {
   try {
-    return JSON.parse(atob(token))
+    return jwt.decode(token)
   } catch {
     return null
   }
@@ -62,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const token = localStorage.getItem(AUTH_TOKEN_KEY)
       if (token) {
         const decoded = decodeToken(token)
-        if (decoded && decoded.exp > Date.now()) {
+        if (decoded && decoded.exp * 1000 > Date.now()) {
           try {
             // Directly find the user by email instead of validating empty passwords
             const foundUser = await findUserByEmail(decoded.email)
@@ -86,12 +77,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     try {
-      const userData = await validateUserCredentials(email, password)
+      const result = await validateUserCredentials(email, password)
       
-      if (userData) {
-        const token = generateToken(userData)
-        localStorage.setItem(AUTH_TOKEN_KEY, token)
-        setUser(userData)
+      if (result && result.user && result.token) {
+        localStorage.setItem(AUTH_TOKEN_KEY, result.token)
+        setUser(result.user)
         return { success: true }
       }
       
@@ -105,9 +95,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const result = await verifyOtpAndLogin(email, otp)
       
-      if (result.success && result.user) {
-        const token = generateToken(result.user)
-        localStorage.setItem(AUTH_TOKEN_KEY, token)
+      if (result.success && result.user && result.token) {
+        localStorage.setItem(AUTH_TOKEN_KEY, result.token)
         setUser(result.user)
         return { success: true }
       }
@@ -161,7 +150,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.warn('Firebase API key missing. Simulating Google Login with Demo account...')
         const mockUser = await findUserByEmail('analyst@example.com')
         if (mockUser) {
-           const token = generateToken(mockUser)
+           const { generateSecureToken } = await import('@/lib/services/database')
+           const token = await generateSecureToken(mockUser)
            localStorage.setItem(AUTH_TOKEN_KEY, token)
            setUser(mockUser)
            return { success: true }
@@ -186,7 +176,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         dbUser = await createUser({ email, name, password: mockPassword, role: 'security_analyst' })
       }
 
-      const token = generateToken(dbUser)
+      const { generateSecureToken } = await import('@/lib/services/database')
+      const token = await generateSecureToken(dbUser)
       localStorage.setItem(AUTH_TOKEN_KEY, token)
       setUser(dbUser)
       

@@ -53,9 +53,12 @@ export async function sendOtpEmail(email: string): Promise<{ success: boolean; e
     }
 
     // Check for recent OTP requests (rate limiting to prevent email bombing)
-    if (user.otpExpiry && user.otpExpiry > new Date(Date.now() + 9 * 60 * 1000)) {
-      // If the current OTP was generated less than 1 minute ago, block a new request
-      return { success: false, error: 'Please wait before requesting a new OTP.' }
+    if (user.otpExpiry) {
+      const generatedAt = user.otpExpiry.getTime() - 10 * 60 * 1000;
+      if (Date.now() - generatedAt < 60 * 1000) {
+        // If the current OTP was generated less than 1 minute ago, block a new request
+        return { success: false, error: 'Please wait before requesting a new OTP.' }
+      }
     }
 
     // Generate 6-digit OTP using Cryptographically Secure Pseudo-Random Number Generator (CSPRNG)
@@ -102,7 +105,9 @@ export async function sendOtpEmail(email: string): Promise<{ success: boolean; e
   }
 }
 
-export async function verifyOtpAndLogin(email: string, otp: string): Promise<{ success: boolean; user?: User; error?: string }> {
+import { generateSecureToken } from './database'
+
+export async function verifyOtpAndLogin(email: string, otp: string): Promise<{ success: boolean; user?: User; token?: string; error?: string }> {
   try {
     await connectToDatabase()
     
@@ -153,7 +158,10 @@ export async function verifyOtpAndLogin(email: string, otp: string): Promise<{ s
     delete userObj.otpExpiry
     delete userObj.otpAttempts
     
-    return { success: true, user: sanitize(userObj) as User }
+    const sanitizedUser = sanitize(userObj) as User;
+    const token = await generateSecureToken(sanitizedUser);
+    
+    return { success: true, user: sanitizedUser, token }
   } catch (error) {
     console.error('OTP verify failed:', error)
     return { success: false, error: 'An error occurred during verification' }

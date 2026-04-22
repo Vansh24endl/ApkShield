@@ -52,10 +52,11 @@ export default function HistoryPage() {
   }, [user])
 
   const handleClearScans = async () => {
+    if (!user) return
     if (confirm('Are you sure you want to clear all scan history? Space will be freed.')) {
       setIsClearing(true)
       try {
-        await clearAllScans()
+        await clearAllScans(user.id)
         await loadScans()
       } catch (error) {
         console.error('Failed to clear scans:', error)

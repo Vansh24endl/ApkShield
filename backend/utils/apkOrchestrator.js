@@ -1,8 +1,9 @@
-const { exec } = require('child_process');
+const { exec, execFile } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const util = require('util');
 const execPromise = util.promisify(exec);
+const execFilePromise = util.promisify(execFile);
 
 /**
  * Validates dependencies required for the APK processing 
@@ -25,7 +26,7 @@ exports.runActualStaticAnalysis = async (jobId, originalApkPath) => {
     
     try {
         // Decompile to extract manifest (Requires Apktool)
-        await execPromise(`apktool d "${originalApkPath}" -o "${extractDir}" -s -f`);
+        await execFilePromise('apktool', ['d', originalApkPath, '-o', extractDir, '-s', '-f']);
         
         const manifestPath = path.join(extractDir, 'AndroidManifest.xml');
         if (!fs.existsSync(manifestPath)) throw new Error("Manifest not found after extraction.");
@@ -55,6 +56,13 @@ exports.runActualStaticAnalysis = async (jobId, originalApkPath) => {
             vulnerabilities.push({ type: "Clean", severity: "Low", description: "No obvious manifest vulnerabilities found.", recommendation: "Keep up the good work." });
         }
 
+        let targetSdkVersion = 33;
+        let minSdkVersion = 21;
+        const targetSdkMatch = manifestData.match(/android:targetSdkVersion="(\d+)"/);
+        if (targetSdkMatch) targetSdkVersion = parseInt(targetSdkMatch[1]);
+        const minSdkMatch = manifestData.match(/android:minSdkVersion="(\d+)"/);
+        if (minSdkMatch) minSdkVersion = parseInt(minSdkMatch[1]);
+
         // Cleanup
         fs.rmSync(extractDir, { recursive: true, force: true });
 
@@ -63,6 +71,8 @@ exports.runActualStaticAnalysis = async (jobId, originalApkPath) => {
             report: {
                 staticAnalysis: "Completed",
                 manifestExtracted: true,
+                targetSdkVersion: targetSdkVersion,
+                minSdkVersion: minSdkVersion,
                 vulnerabilities: vulnerabilities
             }
         };
@@ -87,34 +97,41 @@ exports.runActualApkWorkflow = async (jobId, originalApkPath, layersConfig) => {
 
   try {
     console.log(`[STAGE 1] Decompiling APK to ${decompiledDir}`);
-    // EXTRACT: apktool d input.apk -o output_dir
-    await execPromise(`apktool d "${originalApkPath}" -o "${decompiledDir}" -f`);
+    await execFilePromise('apktool', ['d', originalApkPath, '-o', decompiledDir, '-f']);
 
     console.log(`[STAGE 2] Implementing Security Modifiers`);
-    // Example: Securing exported receivers in Manifest
     const manifestPath = path.join(decompiledDir, 'AndroidManifest.xml');
     if (fs.existsSync(manifestPath)) {
         let manifestData = fs.readFileSync(manifestPath, 'utf8');
         
-        // Security Injection: Force exported components to false to prevent vulnerability exposures
-        manifestData = manifestData.replace(/<receiver([^>]*)>/g, '<receiver$1 android:exported="false">');
+        if (layersConfig && layersConfig.includes('Obfuscation')) {
+            // Obfuscation layer placeholder (just as an example if it was modifying manifest)
+        }
         
-        // Network Security: Inject NetworkSecurityConfig requirement for SSL pinning
-        if (!manifestData.includes('android:networkSecurityConfig')) {
-          manifestData = manifestData.replace('<application', '<application android:networkSecurityConfig="@xml/network_security_config"');
+        if (layersConfig && layersConfig.includes('Anti-Tamper')) {
+            // Security Injection: Force exported components to false to prevent vulnerability exposures
+            manifestData = manifestData.replace(/<receiver([^>]*)>/g, (match, attrs) => {
+                if (attrs.includes('android:exported="')) {
+                    return `<receiver${attrs.replace(/android:exported="[^"]*"/, 'android:exported="false"')}>`;
+                }
+                return `<receiver${attrs} android:exported="false">`;
+            });
+            
+            // Network Security: Inject NetworkSecurityConfig requirement for SSL pinning
+            if (!manifestData.includes('android:networkSecurityConfig')) {
+              manifestData = manifestData.replace('<application', '<application android:networkSecurityConfig="@xml/network_security_config"');
+            }
         }
         
         fs.writeFileSync(manifestPath, manifestData, 'utf8');
     }
 
     console.log(`[STAGE 3] Rebuilding Repackaged APK`);
-    // BUILD: apktool b extracted -o new.apk
-    await execPromise(`apktool b "${decompiledDir}" -o "${repackedApk}"`);
+    await execFilePromise('apktool', ['b', decompiledDir, '-o', repackedApk]);
 
     console.log(`[STAGE 4] Aligning for Android 14 Compatibility`);
-    // Zipalign is vital for Android 14+ compatibility and performance.
     try {
-        await execPromise(`zipalign -p -f 4 "${repackedApk}" "${alignedApk}"`);
+        await execFilePromise('zipalign', ['-p', '-f', '4', repackedApk, alignedApk]);
     } catch(e) {
        console.log('Zipalign missing or failed. Using fallback.');
        fs.copyFileSync(repackedApk, alignedApk);
@@ -123,26 +140,19 @@ exports.runActualApkWorkflow = async (jobId, originalApkPath, layersConfig) => {
     console.log(`[STAGE 5] Signing APK (Apksigner)`);
     const keystorePath = path.join(__dirname, '..', 'config', 'debug.keystore');
     
-    // Auto-generate keystore if it doesn't exist
     if(!fs.existsSync(keystorePath)) {
         const ksDir = path.dirname(keystorePath);
         if(!fs.existsSync(ksDir)) fs.mkdirSync(ksDir, {recursive: true});
         await execPromise(`keytool -genkey -v -keystore "${keystorePath}" -alias myalias -keyalg RSA -keysize 2048 -validity 10000 -storepass "password" -keypass "password" -dname "cn=ApkShield, ou=Security, o=ApkShield, c=US"`);
     }
 
-    // Sign using modern apksigner (Must for Android 14 execution without crashing)
     try {
-        await execPromise(`apksigner sign --ks "${keystorePath}" --ks-pass pass:password --out "${finalSignedApk}" "${alignedApk}"`);
+        await execFilePromise('apksigner', ['sign', '--ks', keystorePath, '--ks-pass', 'pass:password', '--out', finalSignedApk, alignedApk]);
     } catch(err) {
         console.log('apksigner failed. Falling back to jarsigner.');
-        await execPromise(`jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore "${keystorePath}" -storepass password "${alignedApk}" myalias`);
+        await execFilePromise('jarsigner', ['-verbose', '-sigalg', 'SHA256withRSA', '-digestalg', 'SHA-256', '-keystore', keystorePath, '-storepass', 'password', alignedApk, 'myalias']);
         fs.copyFileSync(alignedApk, finalSignedApk); 
     }
-
-    // Cleanup Temporary Files
-    fs.rmSync(decompiledDir, { recursive: true, force: true });
-    if(fs.existsSync(repackedApk)) fs.unlinkSync(repackedApk);
-    if(fs.existsSync(alignedApk)) fs.unlinkSync(alignedApk);
 
     return { 
         success: true, 
@@ -152,5 +162,10 @@ exports.runActualApkWorkflow = async (jobId, originalApkPath, layersConfig) => {
   } catch (error) {
     console.error("Workflow Error: ", error.message);
     return { success: false, error: error.message };
+  } finally {
+    // Cleanup Temporary Files
+    if(fs.existsSync(decompiledDir)) fs.rmSync(decompiledDir, { recursive: true, force: true });
+    if(fs.existsSync(repackedApk)) fs.unlinkSync(repackedApk);
+    if(fs.existsSync(alignedApk)) fs.unlinkSync(alignedApk);
   }
 };

@@ -9,8 +9,18 @@ import mongoose from 'mongoose'
 
 const ApkJobModel = mongoose.models.ApkJob || mongoose.model('ApkJob', new mongoose.Schema({}, { strict: false, collection: 'apkjobs' }))
 import { scryptSync, randomBytes, timingSafeEqual, randomUUID } from 'crypto'
+import jwt from 'jsonwebtoken'
 
-// -- SECURITY HELPERS --
+const JWT_SECRET = process.env.JWT_SECRET || 'a_very_secure_fallback_secret_for_apk_shield'
+
+export async function generateSecureToken(user: User): Promise<string> {
+  return jwt.sign(
+    { id: user.id, email: user.email, role: user.role },
+    JWT_SECRET,
+    { expiresIn: '24h' }
+  )
+}
+
 // Securely encrypt passwords using Node's built-in crypto module
 function hashPassword(password: string): string {
   const salt = randomBytes(16).toString('hex')
@@ -77,7 +87,7 @@ export async function createUser(userData: {
   return sanitize(userObj) as User
 }
 
-export async function validateUserCredentials(email: string, password: string): Promise<User | null> {
+export async function validateUserCredentials(email: string, password: string): Promise<{user: User, token: string} | null> {
   await connectToDatabase()
   const user = await UserModel.findOne({ email }).lean() as any
   
@@ -86,7 +96,9 @@ export async function validateUserCredentials(email: string, password: string): 
       throw new Error('Account not verified. Please complete OTP verification.')
     }
     const { password: _, _id, __v, ...userData } = user
-    return sanitize(userData) as User
+    const sanitizedUser = sanitize(userData) as User
+    const token = await generateSecureToken(sanitizedUser)
+    return { user: sanitizedUser, token }
   }
   return null
 }
@@ -125,7 +137,7 @@ export async function getAPKById(id: string): Promise<APKMetadata | undefined> {
 export async function getAPKsByUserId(userId: string): Promise<APKMetadata[]> {
   await connectToDatabase()
   // Fetch real scanned jobs directly from the backend's 'apkjobs' collection
-  const apks = await ApkJobModel.find({}).sort({ createdAt: -1 }).lean() as any[]
+  const apks = await ApkJobModel.find({ userId: userId }).sort({ createdAt: -1 }).lean() as any[]
   
   return sanitize(apks.map(job => ({
     id: job._id.toString(),
@@ -195,8 +207,8 @@ export async function getReportByAPKId(apkId: string): Promise<AnalysisReport | 
       packageName: job.filename,
       versionName: '1.0',
       versionCode: 1,
-      minSdkVersion: 21,
-      targetSdkVersion: 33,
+      minSdkVersion: job.report.minSdkVersion || 21,
+      targetSdkVersion: job.report.targetSdkVersion || 33,
       permissions: [], activities: [], services: [], receivers: [], providers: [], exported: { activities: [], services: [], receivers: [], providers: [] }, debuggable: false, allowBackup: false
     },
     permissions: [],
@@ -206,7 +218,7 @@ export async function getReportByAPKId(apkId: string): Promise<AnalysisReport | 
 
 export async function getReportsByUserId(userId: string): Promise<AnalysisReport[]> {
   await connectToDatabase()
-  const jobs = await ApkJobModel.find({ status: 'Completed', report: { $exists: true } })
+  const jobs = await ApkJobModel.find({ userId: userId, status: 'Completed', report: { $exists: true } })
     .sort({ createdAt: -1 })
     .lean() as any[]
     
@@ -237,8 +249,8 @@ export async function getReportsByUserId(userId: string): Promise<AnalysisReport
         packageName: job.filename,
         versionName: '1.0',
         versionCode: 1,
-        minSdkVersion: 21,
-        targetSdkVersion: 33,
+        minSdkVersion: job.report?.minSdkVersion || 21,
+        targetSdkVersion: job.report?.targetSdkVersion || 33,
         permissions: [], activities: [], services: [], receivers: [], providers: [], exported: { activities: [], services: [], receivers: [], providers: [] }, debuggable: false, allowBackup: false
       },
       permissions: [],
@@ -254,9 +266,9 @@ export async function getAllReports(): Promise<AnalysisReport[]> {
   return sanitize(reports) as AnalysisReport[]
 }
 
-export async function clearAllScans(): Promise<void> {
+export async function clearAllScans(userId: string): Promise<void> {
   await connectToDatabase()
-  await ApkJobModel.deleteMany({})
+  await ApkJobModel.deleteMany({ userId: userId })
 }
 
 export async function getDashboardStats(userId?: string): Promise<{

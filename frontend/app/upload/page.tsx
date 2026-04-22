@@ -40,8 +40,10 @@ export default function UploadPage() {
           formData.append('userId', user.id)
       }
 
+      const token = localStorage.getItem('apk_shield_token');
       const response = await fetch('http://localhost:5000/api/apk/upload', {
         method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
       });
 
