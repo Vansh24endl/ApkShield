@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { CheckCircle2, CircleDashed, XCircle, Loader2, Download, Terminal, Shield } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PipelineView() {
   const { id } = useParams();
@@ -23,8 +24,30 @@ export default function PipelineView() {
   }, [id]);
 
   if (!job) return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <Loader2 className="h-12 w-12 animate-spin text-primary" />
+    <div className="min-h-screen bg-background text-foreground p-8">
+      <div className="mx-auto max-w-4xl space-y-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 border-b pb-6">
+          <Skeleton className="h-8 w-8 rounded-full" />
+          <Skeleton className="h-10 w-64" />
+          <Skeleton className="h-8 w-32 rounded-full" />
+        </div>
+        <Card>
+          <CardContent className="p-8">
+            <div className="space-y-8">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="flex items-center space-x-6 relative">
+                  {i < 5 && <div className="absolute left-[1.125rem] top-10 h-10 w-0.5 bg-muted z-0" />}
+                  <Skeleton className="h-10 w-10 relative z-10 rounded-full" />
+                  <div className="flex-1 pb-2">
+                    <Skeleton className="h-6 w-48" />
+                    <Skeleton className="h-4 w-32 mt-2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 

@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/lib/auth-context'
 import { getAPKsByUserId, clearAllScans } from '@/lib/services/database'
 import type { APKMetadata } from '@/lib/types'
@@ -24,6 +25,7 @@ export default function HistoryPage() {
   const [filteredScans, setFilteredScans] = useState<APKMetadata[]>([])
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [isClearing, setIsClearing] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const loadScans = async () => {
     if (!user) return
@@ -34,6 +36,7 @@ export default function HistoryPage() {
     } else {
       setFilteredScans(userScans.filter(s => s.status === statusFilter))
     }
+    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -70,12 +73,38 @@ export default function HistoryPage() {
     }
   }, [statusFilter, scans])
 
-  if (authLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    )
+  const renderSkeleton = () => (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+             <Skeleton className="h-10 w-10 rounded-lg" />
+             <div>
+               <Skeleton className="h-8 w-48 mb-2" />
+               <Skeleton className="h-4 w-24" />
+             </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-10 w-36" />
+            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-10 w-32" />
+          </div>
+        </div>
+        <div className="rounded-xl border border-border bg-card">
+           <Skeleton className="h-[400px] w-full rounded-xl" />
+        </div>
+        <div className="mt-6 grid gap-4 sm:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+             <Skeleton key={i} className="h-24 w-full rounded-lg" />
+          ))}
+        </div>
+      </main>
+    </div>
+  )
+
+  if (authLoading || isLoading) {
+    return renderSkeleton()
   }
 
   if (!isAuthenticated) {

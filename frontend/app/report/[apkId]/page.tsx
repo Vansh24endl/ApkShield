@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RiskScoreGauge } from '@/components/ui/risk-score-gauge'
 import { SeverityBadge } from '@/components/ui/severity-badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import { VulnerabilityCard } from '@/components/report/vulnerability-card'
 import { 
   VulnerabilitySeverityChart, 
@@ -88,12 +89,51 @@ export default function ReportPage({ params }: PageProps) {
     }
   }
 
+  const renderSkeleton = () => (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <Skeleton className="h-4 w-32 mb-4" />
+            <Skeleton className="h-10 w-64 mb-2" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+          <Skeleton className="h-10 w-36" />
+        </div>
+
+        <div className="mb-8 grid gap-6 lg:grid-cols-4">
+          <div className="rounded-xl border border-border bg-card p-6 flex flex-col items-center justify-center">
+            <Skeleton className="h-[120px] w-[120px] rounded-full" />
+            <Skeleton className="mt-4 h-4 w-32" />
+          </div>
+          <div className="rounded-xl border border-border bg-card p-6 lg:col-span-3">
+            <Skeleton className="h-6 w-48 mb-4" />
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-[104px] w-full rounded-lg" />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <Skeleton className="h-10 w-full lg:w-[400px]" />
+          <div className="rounded-xl border border-border bg-card p-6">
+            <Skeleton className="h-6 w-64 mb-6" />
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-32 w-full rounded-lg" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+
   if (authLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    )
+    return renderSkeleton()
   }
 
   if (!isAuthenticated) {
@@ -121,11 +161,7 @@ export default function ReportPage({ params }: PageProps) {
   }
 
   if (!report || !apk) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    )
+    return renderSkeleton()
   }
 
   return (

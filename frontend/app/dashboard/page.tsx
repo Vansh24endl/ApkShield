@@ -22,6 +22,7 @@ import { StatsCard } from '@/components/dashboard/stats-card'
 import { ScanHistoryTable } from '@/components/dashboard/scan-history-table'
 import { Button } from '@/components/ui/button'
 import { GlassActionsPanel } from '@/components/ui/glass-actions'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/lib/auth-context'
 import { getAPKsByUserId, getDashboardStats, getReportsByUserId, clearAllScans } from '@/lib/services/database'
 import type { APKMetadata, AnalysisReport } from '@/lib/types'
@@ -41,6 +42,7 @@ export default function DashboardPage() {
   })
   const [recentActivity, setRecentActivity] = useState<AnalysisReport[]>([])
   const [isClearing, setIsClearing] = useState(false)
+  const [isDataLoading, setIsDataLoading] = useState(true)
 
   const loadDashboardData = async () => {
     if (!user) return
@@ -54,6 +56,7 @@ export default function DashboardPage() {
     setScans(userScans);
     setStats(dashStats);
     setRecentActivity(userReports.slice(0, 5));
+    setIsDataLoading(false);
   }
 
   useEffect(() => {
@@ -82,12 +85,39 @@ export default function DashboardPage() {
     }
   }
 
-  if (authLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    )
+  const renderSkeleton = () => (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <Skeleton className="h-8 w-64 mb-2" />
+            <Skeleton className="h-4 w-96" />
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </div>
+
+        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+             <Skeleton key={i} className="h-28 w-full rounded-xl" />
+          ))}
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <Skeleton className="h-96 w-full rounded-xl" />
+          </div>
+          <div className="space-y-6">
+            <Skeleton className="h-48 w-full rounded-xl" />
+            <Skeleton className="h-64 w-full rounded-xl" />
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+
+  if (authLoading || isDataLoading) {
+    return renderSkeleton()
   }
 
   if (!isAuthenticated) {
