@@ -192,7 +192,7 @@ export default function HomePage() {
                 name: 'Vansh Dhumal',
                 role: 'Team Leader',
                 description: 'Full Stack Developer & Security Architect leading the technical vision.',
-                imageSrc: '/team/vansh.jpeg'
+                imageSrc: '/team/vansh.png'
               },
               {
                 name: 'Aaryesh Namdeo',
