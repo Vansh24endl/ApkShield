@@ -32,8 +32,8 @@ export function Header() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="relative">
-            <Shield className="h-8 w-8 text-primary transition-all group-hover:drop-shadow-[0_0_8px_var(--neon-glow)]" />
+          <div className="relative h-8 w-8">
+            <img src="/icon.png" alt="APK Shield Logo" className="h-full w-full object-contain transition-all group-hover:drop-shadow-[0_0_8px_var(--neon-glow)]" />
             <div className="absolute inset-0 blur-lg bg-primary/30 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
           <span className="text-xl font-bold tracking-tight">

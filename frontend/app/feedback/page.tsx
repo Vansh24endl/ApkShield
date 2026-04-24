@@ -1,7 +1,46 @@
+'use client'
+
+import { useState } from 'react'
 import { Header } from '@/components/layout/header'
-import { Shield } from 'lucide-react'
+import { Shield, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
+import { saveFeedback } from '@/lib/services/database'
 
 export default function FeedbackPage() {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!formData.name || !formData.email || !formData.message) {
+      toast.error('Please fill in all fields')
+      return
+    }
+
+    setIsSubmitting(true)
+    
+    try {
+      await saveFeedback({
+        name: formData.name,
+        email: formData.email,
+        message: formData.message
+      })
+      
+      toast.success('Thank you! Your feedback has been submitted successfully.')
+      setFormData({ name: '', email: '', message: '' })
+    } catch (error) {
+      toast.error('Failed to submit feedback. Please try again.')
+      console.error(error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
   return (
     <>
       <Header />
@@ -13,21 +52,56 @@ export default function FeedbackPage() {
           </div>
           <div className="rounded-xl border border-border bg-card p-8">
             <p className="text-muted-foreground mb-6">We value your feedback to improve APK Shield. Please fill out the form below to let us know your thoughts.</p>
-            <form className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium mb-2">Name</label>
-                <input type="text" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Your Name" />
+                <input 
+                  type="text" 
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  suppressHydrationWarning
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                  placeholder="Your Name" 
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Email</label>
-                <input type="email" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="your.email@example.com" />
+                <input 
+                  type="email" 
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  suppressHydrationWarning
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                  placeholder="your.email@example.com" 
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Message</label>
-                <textarea className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm h-32" placeholder="Tell us what you think..."></textarea>
+                <textarea 
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  suppressHydrationWarning
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm h-32 focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                  placeholder="Tell us what you think..."
+                />
               </div>
-              <button type="button" className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground h-10 px-4 py-2 font-medium transition-colors hover:bg-primary/90">
-                Submit Feedback
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                suppressHydrationWarning
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-primary text-primary-foreground h-10 px-4 py-2 font-medium transition-colors hover:bg-primary/90 disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit Feedback'
+                )}
               </button>
             </form>
           </div>
@@ -36,3 +110,4 @@ export default function FeedbackPage() {
     </>
   )
 }
+

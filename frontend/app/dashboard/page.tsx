@@ -14,12 +14,15 @@ import {
   Clock,
   Trash,
   Zap,
-  Settings
+  Settings,
+  HelpCircle
 }
 from 'lucide-react'
 import { Header } from '@/components/layout/header'
 import { StatsCard } from '@/components/dashboard/stats-card'
 import { ScanHistoryTable } from '@/components/dashboard/scan-history-table'
+import { SeverityChart } from '@/components/dashboard/severity-chart'
+import { DashboardTour } from '@/components/dashboard/dashboard-tour'
 import { Button } from '@/components/ui/button'
 import { GlassActionsPanel } from '@/components/ui/glass-actions'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -128,6 +131,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <DashboardTour />
       
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Welcome Section */}
@@ -140,7 +144,7 @@ export default function DashboardPage() {
               {"Here's an overview of your security analysis activity"}
             </p>
           </div>
-          <Link href="/upload">
+          <Link href="/upload" id="tour-upload-btn">
             <Button className="gap-2">
               <Upload className="h-4 w-4" />
               Upload APK
@@ -149,7 +153,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div id="tour-stats-grid" className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatsCard
             title="Total Scans"
             value={stats.totalScans}
@@ -178,9 +182,9 @@ export default function DashboardPage() {
 
         {/* Main Content Grid */}
         <div className="grid gap-6 lg:grid-cols-3">
-          {/* Recent Scans - Takes 2 columns */}
-          <div className="lg:col-span-2">
-            <div className="rounded-xl border border-border bg-card">
+          {/* Left Column: Recent Scans & Activity */}
+          <div className="lg:col-span-2 space-y-6">
+            <div id="tour-recent-scans" className="rounded-xl border border-border bg-card">
               <div className="flex items-center justify-between border-b border-border p-4">
                 <div className="flex items-center gap-2">
                   <Clock className="h-5 w-5 text-muted-foreground" />
@@ -203,6 +207,41 @@ export default function DashboardPage() {
                 </div>
               </div>
               <ScanHistoryTable scans={scans.slice(0, 5)} />
+            </div>
+
+            {/* Recent Activity */}
+            <div className="rounded-xl border border-border bg-card p-4">
+              <h2 className="mb-4 flex items-center gap-2 font-semibold">
+                <Activity className="h-5 w-5 text-muted-foreground" />
+                Recent Activity
+              </h2>
+              {recentActivity.length > 0 ? (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {recentActivity.map((report) => (
+                    <Link
+                      key={report.id}
+                      href={`/report/${report.apkId}`}
+                      className="block rounded-lg border border-border/50 p-3 transition-colors hover:bg-muted/50"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium truncate max-w-[200px]">
+                          {report.manifest?.packageName?.split('.').pop() || 'Unknown App'}
+                        </span>
+                        <span className={`text-xs font-medium ${
+                          report.summary.riskScore >= 50 ? 'text-red-400' : 'text-green-400'
+                        }`}>
+                          Score: {report.summary.riskScore}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {report.summary.totalVulnerabilities} vulnerabilities found
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No recent activity</p>
+              )}
             </div>
           </div>
 
@@ -233,44 +272,27 @@ export default function DashboardPage() {
                     Account Settings
                   </Button>
                 </Link>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start gap-2"
+                  onClick={() => window.dispatchEvent(new Event('start-dashboard-tour'))}
+                >
+                  <HelpCircle className="h-4 w-4" />
+                  Replay Dashboard Tour
+                </Button>
               </div>
             </div>
 
 
 
-            {/* Recent Activity */}
-            <div className="rounded-xl border border-border bg-card p-4">
-              <h2 className="mb-4 flex items-center gap-2 font-semibold">
-                <Activity className="h-5 w-5 text-muted-foreground" />
-                Recent Activity
-              </h2>
-              {recentActivity.length > 0 ? (
-                <div className="space-y-3">
-                  {recentActivity.map((report) => (
-                    <Link
-                      key={report.id}
-                      href={`/report/${report.apkId}`}
-                      className="block rounded-lg border border-border/50 p-3 transition-colors hover:bg-muted/50"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium truncate max-w-[150px]">
-                          {report.manifest.packageName.split('.').pop()}
-                        </span>
-                        <span className={`text-xs font-medium ${
-                          report.summary.riskScore >= 50 ? 'text-red-400' : 'text-green-400'
-                        }`}>
-                          Score: {report.summary.riskScore}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {report.summary.totalVulnerabilities} vulnerabilities found
-                      </p>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">No recent activity</p>
-              )}
+            {/* Vulnerability Distribution Chart */}
+            <div id="tour-vuln-chart">
+              <SeverityChart 
+                critical={stats.criticalFindings}
+                high={stats.highFindings}
+                medium={stats.mediumFindings}
+                low={stats.lowFindings}
+              />
             </div>
 
             {/* Security Tips */}

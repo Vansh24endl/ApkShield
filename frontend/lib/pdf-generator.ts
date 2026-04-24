@@ -295,18 +295,35 @@ export function generatePDFReport(report: AnalysisReport, apk: APKMetadata): voi
 </html>
   `
 
-  // Open print dialog with the generated HTML
-  const printWindow = window.open('', '_blank')
-  if (printWindow) {
-    printWindow.document.write(content)
-    printWindow.document.close()
-    printWindow.focus()
-    
-    // Trigger print after content loads
-    setTimeout(() => {
-      printWindow.print()
-    }, 250)
-  }
+  // Use html2pdf.js to generate and download the PDF
+  // We need to dynamically import it since it's client-side only
+  // @ts-ignore - html2pdf.js lacks official types
+  import('html2pdf.js').then((html2pdfModule) => {
+    const html2pdf = html2pdfModule.default
+
+    const container = document.createElement('div')
+    container.innerHTML = content
+
+    const opt = {
+      margin:       10,
+      filename:     `APK_Shield_Report_${apk.fileName.replace('.apk', '')}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }
+
+    html2pdf().set(opt).from(container).save()
+  }).catch(err => {
+    console.error('Failed to load html2pdf.js', err)
+    // Fallback to print dialog
+    const printWindow = window.open('', '_blank')
+    if (printWindow) {
+      printWindow.document.write(content)
+      printWindow.document.close()
+      printWindow.focus()
+      setTimeout(() => printWindow.print(), 250)
+    }
+  })
 }
 
 function getRiskClass(score: number): string {

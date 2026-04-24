@@ -21,6 +21,11 @@ export const metadata: Metadata = {
   title: 'APK Shield - Android Security Analysis',
   description: 'Professional static analysis tool for detecting security vulnerabilities in Android APK files',
   keywords: ['APK', 'security', 'Android', 'vulnerability', 'analysis', 'malware'],
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
+  },
 }
 
 export const viewport: Viewport = {

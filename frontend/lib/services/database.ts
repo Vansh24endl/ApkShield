@@ -5,6 +5,7 @@ import connectToDatabase from '@/lib/mongodb'
 import UserModel from '@/lib/models/User'
 import APKMetadataModel from '@/lib/models/APKMetadata'
 import AnalysisReportModel from '@/lib/models/AnalysisReport'
+import FeedbackModel from '@/lib/models/Feedback'
 import mongoose from 'mongoose'
 
 const ApkJobModel = mongoose.models.ApkJob || mongoose.model('ApkJob', new mongoose.Schema({}, { strict: false, collection: 'apkjobs' }))
@@ -345,4 +346,16 @@ export async function initializeDemoData(): Promise<void> {
       }
     }
   }
+}
+
+export async function saveFeedback(data: { name: string, email: string, message: string }) {
+  await connectToDatabase()
+  const feedback = await FeedbackModel.create({
+    id: await generateId(),
+    name: data.name,
+    email: data.email,
+    message: data.message,
+    createdAt: new Date().toISOString()
+  })
+  return sanitize(feedback.toObject())
 }
