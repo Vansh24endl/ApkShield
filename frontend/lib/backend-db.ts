@@ -10,6 +10,14 @@ interface Database {
   reports: AnalysisReport[]
 }
 
+import { scryptSync, randomBytes } from 'crypto'
+
+function hashPassword(password: string): string {
+  const salt = randomBytes(16).toString('hex')
+  const derivedKey = scryptSync(password, salt, 64)
+  return `${salt}:${derivedKey.toString('hex')}`
+}
+
 function initDB(): Database {
   if (!fs.existsSync(DB_FILE)) {
     const defaultData: Database = {
@@ -29,14 +37,13 @@ function initDB(): Database {
           createdAt: new Date().toISOString()
         }
       ],
-      // We store password hashes in memory for demo here securely if we want, but for simplicity let's store passwords directly in users array for demo.
+      // Store password hashes instead of plaintext
       apks: [],
       reports: []
     }
-    // For demo, we attach passwords inline since they aren't typed in User.
-    // In production we would hash them.
-    ;(defaultData.users[0] as any).password = 'demo123'
-    ;(defaultData.users[1] as any).password = 'demo123'
+    
+    ;(defaultData.users[0] as any).password = hashPassword('demo123')
+    ;(defaultData.users[1] as any).password = hashPassword('demo123')
     
     fs.writeFileSync(DB_FILE, JSON.stringify(defaultData, null, 2))
     return defaultData

@@ -10,7 +10,13 @@ const execFilePromise = util.promisify(execFile);
  */
 exports.checkDependencies = async () => {
     try {
-        await execPromise('apktool -version');
+        await execFilePromise('apktool', ['-version']);
+        await execFilePromise('apksigner', ['--version']);
+        try {
+            await execFilePromise('zipalign');
+        } catch (e) {
+            if (e.code === 'ENOENT') throw e;
+        }
         return true;
     } catch (e) {
         return false;
@@ -120,6 +126,11 @@ exports.runActualApkWorkflow = async (jobId, originalApkPath, layersConfig) => {
             // Network Security: Inject NetworkSecurityConfig requirement for SSL pinning
             if (!manifestData.includes('android:networkSecurityConfig')) {
               manifestData = manifestData.replace('<application', '<application android:networkSecurityConfig="@xml/network_security_config"');
+              
+              const xmlDir = path.join(decompiledDir, 'res', 'xml');
+              if (!fs.existsSync(xmlDir)) fs.mkdirSync(xmlDir, { recursive: true });
+              const nscPath = path.join(xmlDir, 'network_security_config.xml');
+              fs.writeFileSync(nscPath, '<?xml version="1.0" encoding="utf-8"?>\n<network-security-config>\n    <base-config cleartextTrafficPermitted="false" />\n</network-security-config>');
             }
         }
         
@@ -139,18 +150,29 @@ exports.runActualApkWorkflow = async (jobId, originalApkPath, layersConfig) => {
 
     console.log(`[STAGE 5] Signing APK (Apksigner)`);
     const keystorePath = path.join(__dirname, '..', 'config', 'debug.keystore');
+    const ksPass = process.env.KEYSTORE_PASS || 'password';
     
     if(!fs.existsSync(keystorePath)) {
         const ksDir = path.dirname(keystorePath);
         if(!fs.existsSync(ksDir)) fs.mkdirSync(ksDir, {recursive: true});
-        await execPromise(`keytool -genkey -v -keystore "${keystorePath}" -alias myalias -keyalg RSA -keysize 2048 -validity 10000 -storepass "password" -keypass "password" -dname "cn=ApkShield, ou=Security, o=ApkShield, c=US"`);
+        await execFilePromise('keytool', [
+            '-genkey', '-v', 
+            '-keystore', keystorePath, 
+            '-alias', 'myalias', 
+            '-keyalg', 'RSA', 
+            '-keysize', '2048', 
+            '-validity', '10000', 
+            '-storepass', ksPass, 
+            '-keypass', ksPass, 
+            '-dname', 'cn=ApkShield, ou=Security, o=ApkShield, c=US'
+        ]);
     }
 
     try {
-        await execFilePromise('apksigner', ['sign', '--ks', keystorePath, '--ks-pass', 'pass:password', '--out', finalSignedApk, alignedApk]);
+        await execFilePromise('apksigner', ['sign', '--ks', keystorePath, '--ks-pass', `pass:${ksPass}`, '--out', finalSignedApk, alignedApk]);
     } catch(err) {
         console.log('apksigner failed. Falling back to jarsigner.');
-        await execFilePromise('jarsigner', ['-verbose', '-sigalg', 'SHA256withRSA', '-digestalg', 'SHA-256', '-keystore', keystorePath, '-storepass', 'password', alignedApk, 'myalias']);
+        await execFilePromise('jarsigner', ['-verbose', '-sigalg', 'SHA256withRSA', '-digestalg', 'SHA-256', '-keystore', keystorePath, '-storepass', ksPass, alignedApk, 'myalias']);
         fs.copyFileSync(alignedApk, finalSignedApk); 
     }
 

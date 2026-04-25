@@ -10,6 +10,7 @@ import type { User, UserRole } from '@/lib/types'
 import { 
   findUserByEmail, 
   createUser, 
+  updateUser,
   validateUserCredentials,
   initializeDemoData 
 } from '@/lib/services/database'
@@ -33,6 +34,7 @@ interface AuthContextType {
   loginWithOtp: (email: string, otp: string) => Promise<{ success: boolean; error?: string }>
   signup: (email: string, password: string, name: string, role: UserRole) => Promise<{ success: boolean; error?: string; requireOtp?: boolean }>
   loginWithGoogle: () => Promise<{ success: boolean; error?: string }>
+  updateProfile: (updates: Partial<User>) => Promise<{ success: boolean; error?: string }>
   logout: () => void
 }
 
@@ -188,6 +190,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  const updateProfile = useCallback(async (updates: Partial<User>) => {
+    if (!user) return { success: false, error: 'User not authenticated' }
+    try {
+      const updatedUser = await updateUser(user.email, updates)
+      if (updatedUser) {
+        setUser(updatedUser)
+        return { success: true }
+      }
+      return { success: false, error: 'Failed to update profile' }
+    } catch (e: any) {
+      return { success: false, error: e.message || 'An error occurred while updating profile' }
+    }
+  }, [user])
+
   const logout = useCallback(() => {
     localStorage.removeItem(AUTH_TOKEN_KEY)
     setUser(null)
@@ -203,6 +219,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loginWithOtp,
         signup,
         loginWithGoogle,
+        updateProfile,
         logout,
       }}
     >

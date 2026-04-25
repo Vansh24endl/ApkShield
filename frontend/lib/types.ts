@@ -13,6 +13,7 @@ export interface User {
   role: UserRole
   createdAt: string
   isVerified?: boolean
+  avatar?: string
 }
 
 // Authentication payload

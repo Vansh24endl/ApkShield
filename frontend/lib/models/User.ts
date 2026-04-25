@@ -12,6 +12,7 @@ const UserSchema = new Schema(
     otpExpiry: { type: Date, required: false },
     otpAttempts: { type: Number, required: false, default: 0 },
     isVerified: { type: Boolean, required: false, default: false },
+    avatar: { type: String, required: false },
   },
   { timestamps: false }
 )

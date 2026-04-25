@@ -31,13 +31,13 @@ export default function UploadPage() {
     if (!selectedFile || !user) return
 
     setIsUploading(true)
-    
+
     try {
       const formData = new FormData()
       formData.append('apk', selectedFile)
       formData.append('layers', JSON.stringify(['Obfuscation', 'Anti-Tamper'])) // Demo mock layers
       if (user?.id) {
-          formData.append('userId', user.id)
+        formData.append('userId', user.id)
       }
 
       const token = localStorage.getItem('apk_shield_token');
@@ -50,9 +50,9 @@ export default function UploadPage() {
       if (!response.ok) throw new Error('Upload request failed')
 
       const data = await response.json()
-      
+
       toast.success('APK uploaded successfully!')
-      
+
       // Navigate to analysis pipeline page
       router.push(`/pipeline/${data.jobId}`)
     } catch (error) {
@@ -78,7 +78,7 @@ export default function UploadPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 text-center">
@@ -95,15 +95,15 @@ export default function UploadPage() {
 
         {/* Upload Area */}
         <div className="rounded-2xl border border-border bg-card p-8">
-          <FileDropzone 
+          <FileDropzone
             onFileSelect={handleFileSelect}
             isUploading={isUploading}
           />
-          
+
           {selectedFile && (
             <div className="mt-6 flex justify-center">
-              <Button 
-                onClick={handleUpload} 
+              <Button
+                onClick={handleUpload}
                 disabled={isUploading}
                 className="gap-2"
                 size="lg"
@@ -152,7 +152,7 @@ export default function UploadPage() {
           <div>
             <h3 className="font-medium text-primary">Secure Processing</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Your APK files are processed securely and are not stored permanently. 
+              Your APK files are processed securely and are not stored permanently.
               Analysis is performed locally in your browser for maximum privacy.
             </p>
           </div>

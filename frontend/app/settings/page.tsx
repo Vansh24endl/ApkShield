@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context'
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { Camera } from 'lucide-react'
 import { 
   User, 
   Bell, 
@@ -21,12 +22,22 @@ import {
 import { cn } from '@/lib/utils'
 
 export default function SettingsPage() {
-  const { user, isAuthenticated, isLoading } = useAuth()
+  const { user, isAuthenticated, isLoading, updateProfile } = useAuth()
   const { theme: currentTheme, setTheme } = useTheme()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('profile')
   const [isSaving, setIsSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  
+  const [name, setName] = useState('')
+  const [avatar, setAvatar] = useState('')
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name)
+      setAvatar(user.avatar || '')
+    }
+  }, [user])
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -36,13 +47,71 @@ export default function SettingsPage() {
 
   if (isLoading || !isAuthenticated) return null
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true)
-    setTimeout(() => {
-      setIsSaving(false)
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2000)
-    }, 1000)
+    
+    if (activeTab === 'profile') {
+      const result = await updateProfile({ name, avatar })
+      if (result.success) {
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2000)
+      } else {
+        alert('Error saving: ' + result.error)
+      }
+    } else {
+      // Fake save for other tabs
+      setTimeout(() => {
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2000)
+      }, 800)
+    }
+    
+    setIsSaving(false)
+  }
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // If file is smaller than 500KB, just use it directly without resizing
+      if (file.size < 500 * 1024) {
+        const reader = new FileReader()
+        reader.onloadend = () => setAvatar(reader.result as string)
+        reader.readAsDataURL(file)
+        return
+      }
+
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const MAX_SIZE = 256
+          let width = img.width
+          let height = img.height
+
+          if (width > height && width > MAX_SIZE) {
+            height = Math.round(height * (MAX_SIZE / width))
+            width = MAX_SIZE
+          } else if (height > MAX_SIZE) {
+            width = Math.round(width * (MAX_SIZE / height))
+            height = MAX_SIZE
+          }
+
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          if (ctx) {
+             ctx.drawImage(img, 0, 0, width, height)
+             const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8)
+             setAvatar(compressedBase64)
+          } else {
+             setAvatar(reader.result as string)
+          }
+        }
+        img.src = reader.result as string
+      }
+      reader.readAsDataURL(file)
+    }
   }
 
   const tabs = [
@@ -103,12 +172,48 @@ export default function SettingsPage() {
                   </div>
                   
                   <div className="space-y-4">
+                    {/* DP Uploader */}
+                    <div className="flex items-center gap-6 pb-4 border-b border-border/50">
+                      <div className="relative group">
+                        <div className="h-24 w-24 rounded-full overflow-hidden border-2 border-primary/20 bg-muted flex items-center justify-center relative">
+                          {avatar ? (
+                            <img src={avatar} alt="Profile" className="h-full w-full object-cover" />
+                          ) : (
+                            <User className="h-10 w-10 text-muted-foreground" />
+                          )}
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Camera className="h-6 w-6 text-white" />
+                          </div>
+                        </div>
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          onChange={handleAvatarChange}
+                        />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">Profile Picture</h3>
+                        <p className="text-sm text-muted-foreground mb-2">Upload a cool new DP for your account.</p>
+                        <Button type="button" variant="outline" size="sm" className="relative cursor-pointer">
+                          Upload Image
+                          <input 
+                            type="file" 
+                            accept="image/*"
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            onChange={handleAvatarChange}
+                          />
+                        </Button>
+                      </div>
+                    </div>
+
                     <div className="grid gap-2">
                       <label className="text-sm font-medium">Full Name</label>
                       <input 
                         type="text" 
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50 transition-all"
-                        defaultValue={user?.name || ''} 
                       />
                     </div>
                     

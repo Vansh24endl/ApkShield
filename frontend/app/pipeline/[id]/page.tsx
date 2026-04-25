@@ -28,7 +28,7 @@ export default function PipelineView() {
           setHasError(true);
         });
     };
-    
+
     fetchStatus();
     const interval = setInterval(fetchStatus, 3000);
     return () => clearInterval(interval);
@@ -94,7 +94,7 @@ export default function PipelineView() {
   return (
     <div className="min-h-screen bg-background text-foreground p-8">
       <div className="mx-auto max-w-4xl space-y-8">
-        
+
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 border-b pb-6">
           <Shield className="h-8 w-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight">Job Pipeline</h1>
@@ -102,7 +102,7 @@ export default function PipelineView() {
             {job.filename}
           </span>
         </div>
-        
+
         <Card>
           <CardContent className="p-8">
             <div className="space-y-8">
@@ -123,8 +123,8 @@ export default function PipelineView() {
                         <XCircle className="text-destructive h-10 w-10 animate-pulse bg-background" />
                       ) : isCurrent ? (
                         <div className="relative h-10 w-10 bg-background flex items-center justify-center">
-                           <Loader2 className="text-primary h-8 w-8 animate-spin" />
-                           <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping"></div>
+                          <Loader2 className="text-primary h-8 w-8 animate-spin" />
+                          <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping"></div>
                         </div>
                       ) : isPast ? (
                         <CheckCircle2 className="text-primary h-10 w-10 bg-background" />
@@ -132,7 +132,7 @@ export default function PipelineView() {
                         <CircleDashed className="text-muted h-10 w-10 bg-background" />
                       )}
                     </div>
-                    
+
                     <div className="flex-1 pb-2">
                       <h3 className={`text-xl font-medium ${isCurrent ? 'text-primary font-bold' : isPast ? 'text-foreground' : 'text-muted-foreground'}`}>
                         {step.name}
@@ -167,15 +167,15 @@ export default function PipelineView() {
             <div className="relative flex h-72 flex-col bg-[#0a0a0a] p-5 overflow-hidden">
               {job.status !== "Completed" && (
                 <div className="absolute left-0 top-0 h-1 w-full bg-primary/20">
-                   <div className="h-full w-1/3 animate-pulse bg-primary" />
+                  <div className="h-full w-1/3 animate-pulse bg-primary" />
                 </div>
               )}
-              
+
               <div className="font-mono text-sm space-y-2 overflow-y-auto flex-1 pr-2">
                 {job.logs?.map((log: any, i: number) => (
                   <div key={i} className="text-emerald-400 hover:bg-emerald-900/20 p-1 rounded transition-colors break-words">
-                    <span className="text-slate-500">[{new Date(log.timestamp).toLocaleTimeString()}]</span> 
-                    <span className="text-emerald-300 ml-2 font-bold opacity-80">[{log.stage}]</span> 
+                    <span className="text-slate-500">[{new Date(log.timestamp).toLocaleTimeString()}]</span>
+                    <span className="text-emerald-300 ml-2 font-bold opacity-80">[{log.stage}]</span>
                     <span className="ml-2 text-emerald-50">{log.message}</span>
                   </div>
                 ))}

@@ -73,8 +73,12 @@ export function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary">
-                    <User className="h-4 w-4" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full overflow-hidden bg-primary/20 text-primary border border-primary/30">
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <User className="h-4 w-4" />
+                    )}
                   </div>
                   <span className="hidden sm:inline text-sm font-medium">{user?.name}</span>
                 </Button>

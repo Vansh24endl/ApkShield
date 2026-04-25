@@ -18,12 +18,12 @@ export function DashboardTour() {
           <p className="text-sm">Let\'s take a quick tour of your security dashboard to get you started.</p>
         </div>
       ),
-      disableBeacon: true,
+      skipBeacon: true,
     },
     {
       target: '#tour-upload-btn',
       content: 'Click here to upload your Android APK file for a comprehensive static security analysis.',
-      disableBeacon: true,
+      skipBeacon: true,
     },
     {
       target: '#tour-stats-grid',

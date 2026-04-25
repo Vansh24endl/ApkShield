@@ -64,6 +64,22 @@ export async function findUserById(id: string): Promise<User | undefined> {
   return sanitize(user) as (User | undefined)
 }
 
+export async function updateUser(email: string, updates: Partial<User>): Promise<User | null> {
+  await connectToDatabase()
+  const safeUpdates = { ...updates }
+  // Ensure we don't update immutable fields like email or id here unless strictly needed
+  delete safeUpdates.email
+  delete safeUpdates.id
+  
+  const updatedUser = await UserModel.findOneAndUpdate(
+    { email },
+    { $set: safeUpdates },
+    { new: true, projection: { _id: 0, __v: 0, password: 0 } }
+  ).lean()
+  
+  return sanitize(updatedUser) as (User | null)
+}
+
 export async function createUser(userData: { 
   email: string
   name: string
