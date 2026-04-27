@@ -153,7 +153,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA Section
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-card to-accent/20 p-12 text-center">
@@ -172,7 +172,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Team Section */}
       <section id="team" className="py-24 bg-muted/30 border-t border-border/50">
@@ -192,13 +192,13 @@ export default function HomePage() {
                 name: 'Vansh Dhumal',
                 role: 'Team Leader',
                 description: 'Full Stack Developer & Security Architect leading the technical vision.',
-                imageSrc: '/team/vansh.png'
+                imageSrc: '/team/TeamLeader.png'
               },
               {
                 name: 'Aaryesh Namdeo',
                 role: 'Security Researcher',
                 description: 'Backend Developer specializing in static and dynamic analysis workflows.',
-                imageSrc: '/team/aaryesh.png'
+                imageSrc: '/team/CoLeader.png'
               },
               {
                 name: 'Nupur Barskar',
