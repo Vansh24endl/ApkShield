@@ -39,14 +39,14 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         {/* Background effects */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
         <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-accent/5 blur-3xl" />
-        
+
         <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
           <div className="text-center">
             {/* Badge */}
@@ -54,21 +54,21 @@ export default function HomePage() {
               <Zap className="h-4 w-4" />
               Static Analysis for Android Security
             </div>
-            
+
             {/* Heading */}
             <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
               Detect Security Vulnerabilities
               <br />
               <span className="text-primary">Before They Exploit You</span>
             </h1>
-            
+
             {/* Description */}
             <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg text-muted-foreground">
-              APK Shield provides comprehensive static analysis for Android applications. 
-              Identify dangerous permissions, exposed components, and security misconfigurations 
+              APK Shield provides comprehensive static analysis for Android applications.
+              Identify dangerous permissions, exposed components, and security misconfigurations
               in seconds.
             </p>
-            
+
             {/* CTA Buttons - Using Client Component Island */}
             <div className="mt-10">
               <HeroActions />
@@ -102,7 +102,7 @@ export default function HomePage() {
               Our analysis engine examines every aspect of your APK to identify potential security risks
             </p>
           </div>
-          
+
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((feature) => {
               const Icon = feature.icon
@@ -134,7 +134,7 @@ export default function HomePage() {
               Three simple steps to identify security vulnerabilities in your Android applications
             </p>
           </div>
-          
+
           <div className="mt-16 grid gap-8 md:grid-cols-3">
             {[
               { step: '01', title: 'Upload APK', desc: 'Drag and drop your APK file or browse to select' },
@@ -185,7 +185,7 @@ export default function HomePage() {
               The dedicated minds behind APK Shield
             </p>
           </div>
-          
+
           <div className="mt-16 flex flex-wrap justify-center gap-8 sm:gap-12">
             {[
               {
@@ -204,7 +204,7 @@ export default function HomePage() {
                 name: 'Nupur Barskar',
                 role: 'UI/UX Designer',
                 description: 'Frontend Developer crafting intuitive and responsive user experiences.',
-                imageSrc: '/team/nupur.jpg'
+                imageSrc: '/team/nupur.jpeg'
               },
               {
                 name: 'Kanak Patil',
