@@ -26,6 +26,7 @@ import { DashboardTour } from '@/components/dashboard/dashboard-tour'
 import { Button } from '@/components/ui/button'
 import { GlassActionsPanel } from '@/components/ui/glass-actions'
 import { Skeleton } from '@/components/ui/skeleton'
+import Background3D from '@/components/Background-3D'
 import { useAuth } from '@/lib/auth-context'
 import { getAPKsByUserId, getDashboardStats, getReportsByUserId, clearAllScans } from '@/lib/services/database'
 import type { APKMetadata, AnalysisReport } from '@/lib/types'
@@ -129,7 +130,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background/80 relative overflow-hidden">
+      <Background3D />
       <Header />
       <DashboardTour />
       
