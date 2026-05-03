@@ -210,7 +210,7 @@ export default function HomePage() {
                 name: 'Kanak Patil',
                 role: 'QA & Cloud Engineer',
                 description: 'Ensuring seamless deployment, database management, and testing.',
-                imageSrc: '/team/kanak.jpeg'
+                imageSrc: '/team/Kanak.jpeg'
               },
             ].map((member) => (
               <div
