@@ -295,35 +295,18 @@ export function generatePDFReport(report: AnalysisReport, apk: APKMetadata): voi
 </html>
   `
 
-  // Use html2pdf.js to generate and download the PDF
-  // We need to dynamically import it since it's client-side only
-  // @ts-ignore - html2pdf.js lacks official types
-  import('html2pdf.js').then((html2pdfModule) => {
-    const html2pdf = html2pdfModule.default
-
-    const container = document.createElement('div')
-    container.innerHTML = content
-
-    const opt = {
-      margin:       10,
-      filename:     `APK_Shield_Report_${apk.fileName.replace('.apk', '')}.pdf`,
-      image:        { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
-    }
-
-    html2pdf().set(opt).from(container).save()
-  }).catch(err => {
-    console.error('Failed to load html2pdf.js', err)
-    // Fallback to print dialog
-    const printWindow = window.open('', '_blank')
-    if (printWindow) {
-      printWindow.document.write(content)
-      printWindow.document.close()
-      printWindow.focus()
-      setTimeout(() => printWindow.print(), 250)
-    }
-  })
+  // Use browser's native print dialog which generates PDF reliably without freezing the UI
+  const printWindow = window.open('', '_blank')
+  if (printWindow) {
+    printWindow.document.write(content)
+    printWindow.document.close()
+    printWindow.focus()
+    setTimeout(() => {
+      printWindow.print()
+    }, 500)
+  } else {
+    alert("Please allow popups for this site to download the PDF report.")
+  }
 }
 
 function getRiskClass(score: number): string {

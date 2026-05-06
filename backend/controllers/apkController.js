@@ -79,6 +79,10 @@ exports.processApkWorkflow = async (jobId) => {
     } else {
       // Fallback to Simulation for demo purposes if tool is missing on host PC
       await pushLog("INJECTION", "APKTool not detected on host. Falling back to simulation logic.", "Injecting Layers");
+      const fs = require('fs');
+      if (fs.existsSync(job.originalFilePath)) {
+        fs.copyFileSync(job.originalFilePath, finalModifiedPath);
+      }
       await new Promise(r => setTimeout(r, 3000)); 
     }
 
