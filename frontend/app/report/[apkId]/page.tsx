@@ -182,7 +182,7 @@ export default function ReportPage({ params }: PageProps) {
             <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Security Analysis Report
             </h1>
-            <p className="mt-1 font-mono text-sm text-muted-foreground">
+            <p className="mt-1 font-mono text-sm text-muted-foreground break-all">
               {apk.fileName}
             </p>
           </div>
@@ -333,7 +333,7 @@ export default function ReportPage({ params }: PageProps) {
                   <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
                     <div>
                       <div className="text-xs text-muted-foreground">Package Name</div>
-                      <div className="font-mono text-sm">{report.manifest.packageName}</div>
+                      <div className="font-mono text-sm break-all">{report.manifest.packageName}</div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>

@@ -100,7 +100,7 @@ export default function PipelineView() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 border-b pb-6">
           <Shield className="h-8 w-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight">Job Pipeline</h1>
-          <span className="rounded-full bg-accent/20 px-4 py-1.5 text-sm font-medium text-accent">
+          <span className="rounded-full bg-accent/20 px-4 py-1.5 text-sm font-medium text-accent truncate max-w-full block sm:inline-block">
             {job.filename}
           </span>
         </div>

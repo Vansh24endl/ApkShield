@@ -7,12 +7,12 @@ import { Footer } from '@/components/layout/footer'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter'
 })
 
-const jetbrainsMono = JetBrains_Mono({ 
+const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-mono'
 })
@@ -54,8 +54,8 @@ export default function RootLayout({
               <main className="flex-1">{children}</main>
               <Footer />
             </div>
-            <Toaster 
-              theme="system" 
+            <Toaster
+              theme="system"
               position="top-right"
             />
           </AuthProvider>
