@@ -5,7 +5,7 @@ const connectDB = require('./config/db');
 
 const app = express();
 
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: '*' })); // Allow all origins for production
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
