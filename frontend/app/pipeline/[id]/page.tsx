@@ -14,7 +14,8 @@ export default function PipelineView() {
   useEffect(() => {
     const fetchStatus = () => {
       const token = localStorage.getItem('apk_shield_token');
-      fetch(`http://localhost:5000/api/apk/status/${id}`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://apkshield.onrender.com';
+      fetch(`${API_URL}/api/apk/status/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => {
@@ -88,7 +89,8 @@ export default function PipelineView() {
 
   const handleDownload = () => {
     const token = localStorage.getItem('apk_shield_token');
-    window.location.href = `http://localhost:5000/api/apk/download/${id}?token=${token}`;
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://apkshield.onrender.com';
+    window.location.href = `${API_URL}/api/apk/download/${id}?token=${token}`;
   };
 
   return (
